@@ -1,0 +1,93 @@
+#!/usr/bin/python
+"""
+    Script to give VPN clients their runtime config.
+    Mostly focused on routes, dns, and search domains.
+"""
+import os
+import sys
+from argparse import ArgumentParser
+import openvpn_client_connect
+sys.dont_write_bytecode = True
+
+
+def build_lines(conf_file, username, client_ip, client_version):
+    """
+        Create the contents of the lines that should be returned
+        to the connecting client.
+    """
+    config_object = openvpn_client_connect.ClientConnect(conf_file)
+    output_array = []
+    output_array += config_object.get_dns_server_lines()
+    output_array += config_object.get_search_domains_lines(username)
+    output_array += openvpn_client_connect.max_route_lines(client_version)
+    output_array += config_object.get_dynamic_route_lines(username, client_ip)
+    output_array += config_object.get_static_route_lines()
+    output_array += config_object.get_protocol_lines()
+    return output_array
+
+
+def main():
+    """
+        Print the config that should go to each client into a file.
+        Return True on success, False upon failure.
+        Side effect is that we write to the output_filename.
+    """
+    # We will push routes/configs to the configuration filename
+    # we're given as the LAST argument in reality there's usually
+    # only one arg, but, that's the spec.
+    parser = ArgumentParser(description='Args for client-connect')
+    parser.add_argument('--conf', type=str, required=True,
+                        help='Config file',
+                        dest='conffile', default=None)
+    parser.add_argument('output_filename', type=str,
+                        help='Filename to push config to')
+    args = parser.parse_args()
+
+    # 2.2 did not send IV_VER.
+    # 2.3+ clients send IV_VER.
+    # A 2.3 server, if sent IV_VER, does not send it to the script.
+    # 2.4 clients and servers are all well-behaved.
+    # Basically: "this can be blank"
+    client_version_string = os.environ.get('IV_VER')
+
+    # common_name is an environmental variable passed in:
+    # "The X509 common name of an authenticated client."
+    # https://openvpn.net/index.php/open-source/documentation/manuals/65-openvpn-20x-manpage.html
+    usercn = os.environ.get('common_name')
+    trusted_ip = os.environ.get('trusted_ip')
+
+    if not usercn:
+        # alternately, "The username provided by a connecting client."
+        usercn = os.environ.get('username')
+
+    # Super failure in openvpn, or hacking, or an improper test from a human.
+    if not usercn:
+        print('No common_name or username environment variable provided.')
+        return False
+    elif not trusted_ip:
+        print('No trusted_ip environment variable provided.')
+        return False
+
+    output_array = build_lines(
+        conf_file=args.conffile,
+        username=usercn,
+        client_ip=trusted_ip,
+        client_version=client_version_string
+        )
+    output_lines = '\n'.join(output_array) + '\n'
+
+    try:
+        with open(args.output_filename, 'w') as filehandle:
+            filehandle.write(output_lines)
+    except IOError:
+        # I couldn't write to the file, so we can't tell openvpn what
+        # happened.  There's nothing to do but error out.
+        return False
+    return True
+
+
+if __name__ == '__main__':
+    if main():
+        sys.exit(0)
+    else:
+        sys.exit(1)

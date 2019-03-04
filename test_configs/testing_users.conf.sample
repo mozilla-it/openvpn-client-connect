@@ -1,0 +1,12 @@
+[testing]
+# The 'testing' section contains information for the unit tests.
+# A production instance can/should empty this.
+#
+# Here's an email address that is bad.  This will help us find cases where
+# someone should fail out.
+bad_user = someone_fake@badaddress.org
+#
+# This should be a valid user in your testing (someone who should be able
+# to log in.  Just having a username will get us a lot of tests.
+# If this user DOESN'T exist, you will have a looot of test failures.
+normal_user = someone_real@yourcompany.com
