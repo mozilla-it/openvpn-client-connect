@@ -1,10 +1,7 @@
 PACKAGE := openvpn_client_connect
 .DEFAULT: test
 .PHONY: all test coverage coveragereport pep8 pylint rpm clean
-TEST_FLAGS_FOR_SUITE := -m unittest discover -f -v -s test
-SUMMARY := OpenVPN script to allocate routes to connecting clients
-DESCRIPTION := Dynamically allocates routes to connecting clients
-
+TEST_FLAGS_FOR_SUITE := -m unittest discover -f -s test
 
 all: test
 
@@ -25,7 +22,7 @@ pylint:
 	@find ./* `git submodule --quiet foreach 'echo -n "-path ./$$path -prune -o "'` -type f -name '*.py' -exec pylint -r no --disable=locally-disabled --rcfile=/dev/null {} \;
 
 rpm:
-	fpm -s python -t rpm --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
+	fpm -s python -t rpm --no-python-fix-name --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
 	@rm -rf build $(PACKAGE).egg-info
 
 clean:

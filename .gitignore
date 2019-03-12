@@ -1,7 +1,7 @@
 # Our config file:
 test_configs/testing_users.conf
 # RPMs that get built
-python-openvpn-client-connect-*.noarch.rpm
+openvpn-client-connect-*.noarch.rpm
 # The upstream library config file, just in case we're testing locally.
 iamvpnlibrary.conf
 
