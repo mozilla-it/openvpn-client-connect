@@ -21,8 +21,12 @@ class TestClass(unittest.TestCase):
         udp_stat = ClientConnect('test_configs/udp_static.conf')
         tcp_stat = ClientConnect('test_configs/tcp_static.conf')
         doubleup = ClientConnect('test_configs/doubleup.conf')
+        singlenat = ClientConnect('test_configs/singlenat.conf')
+        multinat = ClientConnect('test_configs/multinat.conf')
         self.configs = {
-            'dynamics': [udp_dyn, tcp_dyn, doubleup],
+            'dynamics': [udp_dyn, tcp_dyn,
+                         doubleup,
+                         singlenat, multinat],
             'dynamiconly': [udp_dyn, tcp_dyn],
             'statics': [udp_stat, tcp_stat, doubleup],
             'staticonly': [udp_stat, tcp_stat],
@@ -31,7 +35,8 @@ class TestClass(unittest.TestCase):
             'invalid': [noconf, empty],
             'valid': [udp_dyn, tcp_dyn,
                       udp_stat, tcp_stat,
-                      doubleup, ],
+                      doubleup,
+                      singlenat, multinat],
             'all': [noconf, empty,
                     udp_dyn, tcp_dyn,
                     udp_stat, tcp_stat,
@@ -110,9 +115,9 @@ class TestClass(unittest.TestCase):
                                ('office_ip_mapping should not be '
                                 'empty on a dynamic test'))
             for _key, val in obj.office_ip_mapping.iteritems():
-                self.assertIsInstance(val, basestring,
+                self.assertIsInstance(val, (list, basestring),
                                       ('office_ip_mapping values '
-                                       'should be strings'))
+                                       'must be lists or strings'))
 
         for obj in self.configs['staticonly']:
             self.assertEqual(len(obj.office_ip_mapping), 0,

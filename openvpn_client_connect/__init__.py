@@ -199,9 +199,17 @@ class ClientConnect(object):
         if self.office_ip_mapping:
             # Is this an office connection?
             for site, site_ip in self.office_ip_mapping.items():
-                if site_ip == client_ip:
-                    user_at_office = site
-                    break
+                if isinstance(site_ip, list):
+                    # site_ip is a list of possible IPs for the office
+                    if client_ip in site_ip:
+                        user_at_office = site
+                        break
+                else:
+                    # site_ip is not a list, and thus is (assumed)
+                    # a string of the office IP
+                    if client_ip == site_ip:
+                        user_at_office = site
+                        break
             else:
                 user_at_office = None
 
