@@ -21,8 +21,7 @@ class TestClass(unittest.TestCase):
         tcp_stat = ClientConnect('test_configs/tcp_static.conf')
         doubleup = ClientConnect('test_configs/doubleup.conf')
         self.configs = {
-            #'dynamics': [udp_dyn, tcp_dyn, doubleup],
-            'dynamics': [udp_dyn],
+            'dynamics': [udp_dyn, tcp_dyn, doubleup],
             'dynamiconly': [udp_dyn, tcp_dyn],
             'statics': [udp_stat, tcp_stat, doubleup],
             'staticonly': [udp_stat, tcp_stat],
