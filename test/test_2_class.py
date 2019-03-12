@@ -13,6 +13,7 @@ class TestClass(unittest.TestCase):
 
     def setUp(self):
         """ Preparing test rig """
+        self.test_office_ip = '127.0.0.2'
         noconf = ClientConnect('test_configs/nosuchfile.conf')
         empty = ClientConnect('test_configs/empty.conf')
         udp_dyn = ClientConnect('test_configs/udp_dynamic.conf')
@@ -213,25 +214,25 @@ class TestClass(unittest.TestCase):
             raise self.skipTest('No testing/normal_user defined')
         normal_user = self.users.get('testing', 'normal_user')
         for obj in self.configs['all']:
-            result = obj.get_dynamic_route_lines(normal_user, '127.0.0.1')
+            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
             self.assertIsInstance(result, list,
                                   'get_dynamic_route_lines must be a list')
         for obj in self.configs['all']:
-            result = obj.get_dynamic_route_lines(normal_user, '127.0.0.1')
+            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
             self.assertIsInstance(result, list,
                                   'get_dynamic_route_lines must be a list')
         for obj in self.configs['invalid']:
-            result = obj.get_dynamic_route_lines(normal_user, '127.0.0.1')
+            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
             self.assertEqual(len(result), 0,
                              ('get_dynamic_route_lines must '
                               'be empty on null config'))
         for obj in self.configs['staticonly']:
-            result = obj.get_dynamic_route_lines(normal_user, '127.0.0.1')
+            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
             self.assertEqual(len(result), 0,
                              ('get_dynamic_route_lines must '
                               'be empty on static config'))
         for obj in self.configs['dynamics']:
-            result = obj.get_dynamic_route_lines(normal_user, '127.0.0.1')
+            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
             self.assertGreater(len(result), 0,
                                ('get_dynamic_route_lines must be '
                                 'a populated list'))
