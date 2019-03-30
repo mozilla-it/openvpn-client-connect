@@ -6,7 +6,7 @@
 import os
 import sys
 import ast
-from openvpn_client_connect.get_user_routes import GetUserRoutes
+from openvpn_client_connect.per_user_configs import GetUserRoutes
 sys.dont_write_bytecode = True
 
 try:

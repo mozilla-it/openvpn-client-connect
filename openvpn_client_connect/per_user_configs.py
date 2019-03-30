@@ -1,15 +1,6 @@
-#!/usr/bin/env python
 """
-    This script's job is to print out a list of ROUTES that a user
+    This script's job is generate a list of ROUTES that a user
     is entitled to have access to, and should be pushed upon VPN connect.
-
-    This script is invoked as a second-tier script from our client-connect
-    As such, we could have this script output pretty much anything we want
-    so long as the message gets across.
-
-    The output format is presently lines that look like:
-
-    10.8.0.0 255.255.120.0
 
     Future thoughts:
         this should ship with a client-connect script.

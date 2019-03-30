@@ -6,7 +6,7 @@ import os.path
 from netaddr import IPNetwork
 sys.path.insert(1, 'iamvpnlibrary')
 # prepend the iam library so that we can locally test.
-from openvpn_client_connect import get_user_routes  # pylint: disable=wrong-import-position
+from openvpn_client_connect import per_user_configs  # pylint: disable=wrong-import-position
 # We import our interesting library last, after modifying the
 # search order, so we pick up the local copy + libraries,
 # rather than ones that might be already installed.
@@ -18,7 +18,7 @@ class PublicTestsMixin(object):
     def test_init(self):
         """ Verify that the self object was initialized """
         self.assertIsInstance(self.library,
-                              get_user_routes.GetUserRoutes)
+                              per_user_configs.GetUserRoutes)
         self.assertIsNotNone(self.library.config)
         self.assertIsInstance(self.library.config, dict)
         self.assertIn('FREE_ROUTES', self.library.config)
@@ -50,7 +50,7 @@ class PublicTestsMixin(object):
             fewer hosts available than when you're remote"
         """
         ret1 = self.library.get_office_routes('site1')
-        # 'site1' exists as a part of the test_configs for get_user_routes
+        # 'site1' exists as a part of the test_configs for getuserRoutes
         ret2 = self.library.get_office_routes(None)
         if ret1 == [] and ret2 == []:
             raise self.skipTest('Inconclusive test, no offices defined')
@@ -194,7 +194,7 @@ class PublicTestsMixin(object):
         # If they're in the office, they should have more routes above the
         # minimum provided by 'free'
         ret = self.library.build_user_routes(normal_user, 'site1')
-        # 'site1' exists as a part of the test_configs for get_user_routes
+        # 'site1' exists as a part of the test_configs for getuserRoutes
         self.assertIsInstance(ret, list)
         self.assertIsInstance(ret[0], IPNetwork)
         self.assertGreaterEqual(len(ret),
@@ -218,7 +218,7 @@ class TestGetUserRoutesGood(PublicTestsMixin, unittest.TestCase):
         _conffile = 'test_configs/get_user_routes.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
             self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
-        self.library = get_user_routes.GetUserRoutes(_conffile)
+        self.library = per_user_configs.GetUserRoutes(_conffile)
         # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
@@ -231,7 +231,7 @@ class TestGetUserRoutesBad(PublicTestsMixin, unittest.TestCase):
         _conffile = 'test_configs/empty.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
             self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
-        self.library = get_user_routes.GetUserRoutes(_conffile)
+        self.library = per_user_configs.GetUserRoutes(_conffile)
         # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
@@ -242,6 +242,6 @@ class TestGetUserRoutesNofile(PublicTestsMixin, unittest.TestCase):
         """ Preparing test rig """
         _usersfile = 'test_configs/testing_users.conf'
         _conffile = 'test_configs/THIS_FILE_ISNT_HERE.conf'
-        self.library = get_user_routes.GetUserRoutes(_conffile)
+        self.library = per_user_configs.GetUserRoutes(_conffile)
         # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
