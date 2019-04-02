@@ -6,7 +6,8 @@
 import os
 import sys
 import ast
-from openvpn_client_connect.per_user_configs import GetUserRoutes
+from openvpn_client_connect.per_user_configs \
+    import GetUserRoutes, GetUserSearchDomains
 sys.dont_write_bytecode = True
 
 try:
@@ -172,13 +173,12 @@ class ClientConnect(object):
             We will do extra domains for certain users.
             ... someday.
         """
+        gusd = GetUserSearchDomains(self.configfile)
+        domains = gusd.get_search_domains(username)
         return_lines = []
-        for server in self.search_domains:
+        for server in domains:
             _line = 'push "dhcp-option DOMAIN {}"'.format(server)
             return_lines.append(_line)
-        if username:
-            # IMPROVEME: do per-user differences
-            pass
         return return_lines
 
     def get_static_route_lines(self):

@@ -2,6 +2,7 @@
 """ Test suite for the openvpn_client_connect non-class methods """
 import unittest
 import sys
+import six
 sys.path.insert(1, 'iamvpnlibrary')
 from openvpn_client_connect import versioncompare  # pylint: disable=wrong-import-position
 from openvpn_client_connect import max_route_lines  # pylint: disable=wrong-import-position
@@ -48,7 +49,7 @@ class TestUtilities(unittest.TestCase):
                               'max_route_lines must be a list')
         self.assertEqual(len(retval), 1,
                          'max_route_lines must only return 1 item')
-        self.assertIsInstance(retval[0], basestring,
+        self.assertIsInstance(retval[0], six.string_types,
                               'max_route_lines\'s item must be a string')
         self.assertRegexpMatches(retval[0], 'max-routes',
                                  'max_route_lines must return a string '
@@ -59,7 +60,7 @@ class TestUtilities(unittest.TestCase):
                               'max_route_lines must be a list')
         self.assertEqual(len(retval), 1,
                          'max_route_lines must only return 1 item')
-        self.assertIsInstance(retval[0], basestring,
+        self.assertIsInstance(retval[0], six.string_types,
                               'max_route_lines\'s item must be a string')
         self.assertRegexpMatches(retval[0], 'max-routes',
                                  'max_route_lines must return a string '

@@ -1,4 +1,5 @@
 # Our config file:
+test_configs/testing_search_domains.conf
 test_configs/testing_users.conf
 # RPMs that get built
 openvpn-client-connect-*.noarch.rpm

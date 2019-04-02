@@ -2,6 +2,7 @@
 """ Test suite for the openvpn_client_connect class """
 import unittest
 import sys
+import six
 import netaddr
 sys.path.insert(1, 'iamvpnlibrary')
 from openvpn_client_connect import ClientConnect  # pylint: disable=wrong-import-position
@@ -56,12 +57,12 @@ class TestClass(unittest.TestCase):
             self.assertIsNone(obj.proto,
                               'proto should be None on an empty config')
         for obj in self.configs['udps']:
-            self.assertIsInstance(obj.proto, basestring,
+            self.assertIsInstance(obj.proto, six.string_types,
                                   'proto must be a string')
             self.assertEqual(obj.proto, 'udp',
                              'proto must be udp')
         for obj in self.configs['tcps']:
-            self.assertIsInstance(obj.proto, basestring,
+            self.assertIsInstance(obj.proto, six.string_types,
                                   'proto must be a string')
             self.assertEqual(obj.proto, 'tcp',
                              'proto must be tcp')
@@ -96,7 +97,7 @@ class TestClass(unittest.TestCase):
             #self.assertGreater(len(obj.search_domains), 0,
             #    'search_domains must be a non-empty list')
             for addr in obj.search_domains:
-                self.assertIsInstance(addr, basestring,
+                self.assertIsInstance(addr, six.string_types,
                                       'search_domains must contain strings')
 
     def test_init_4_officeipmapping(self):
@@ -115,7 +116,7 @@ class TestClass(unittest.TestCase):
                                ('office_ip_mapping should not be '
                                 'empty on a dynamic test'))
             for _key, val in obj.office_ip_mapping.iteritems():
-                self.assertIsInstance(val, (list, basestring),
+                self.assertIsInstance(val, (list, six.string_types),
                                       ('office_ip_mapping values '
                                        'must be lists or strings'))
 
@@ -142,7 +143,7 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(obj.routes), 0,
                                ('static routes should not be '
                                 'empty on a static test'))
-            self.assertIsInstance(obj.routes[0], basestring,
+            self.assertIsInstance(obj.routes[0], six.string_types,
                                   'static routes should be strings')
 
     def test_get_dns(self):
@@ -158,7 +159,7 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(obj.get_dns_server_lines()), 0,
                                'get_dns_server_lines must be a populated list')
             for line in obj.get_dns_server_lines():
-                self.assertIsInstance(line, basestring,
+                self.assertIsInstance(line, six.string_types,
                                       ('get_dns_server_lines values '
                                        'should be strings'))
                 self.assertRegexpMatches(line, 'push "dhcp-option DNS .*"',
@@ -178,7 +179,7 @@ class TestClass(unittest.TestCase):
             #self.assertGreater(len(obj.get_search_domains_lines()), 0,
             #    'get_search_domains_lines must be a populated list')
             for line in obj.get_search_domains_lines():
-                self.assertIsInstance(line, basestring,
+                self.assertIsInstance(line, six.string_types,
                                       ('get_search_domains_lines values '
                                        'should be strings'))
                 self.assertRegexpMatches(line, 'push "dhcp-option DOMAIN .*"',
@@ -202,7 +203,7 @@ class TestClass(unittest.TestCase):
                                ('get_static_route_lines must be '
                                 'a populated list'))
             for line in obj.get_static_route_lines():
-                self.assertIsInstance(line, basestring,
+                self.assertIsInstance(line, six.string_types,
                                       ('get_static_route_lines values '
                                        'should be strings'))
                 self.assertRegexpMatches(line, 'push "route .*"',
@@ -242,7 +243,7 @@ class TestClass(unittest.TestCase):
                                ('get_dynamic_route_lines must be '
                                 'a populated list'))
             for line in result:
-                self.assertIsInstance(line, basestring,
+                self.assertIsInstance(line, six.string_types,
                                       ('get_dynamic_route_lines values '
                                        'should be strings'))
                 self.assertRegexpMatches(line, 'push "route .*"',
@@ -265,7 +266,7 @@ class TestClass(unittest.TestCase):
             self.assertEqual(len(obj.get_protocol_lines()), 1,
                              'get_protocol_lines must exist on udp config')
             for line in obj.get_protocol_lines():
-                self.assertIsInstance(line, basestring,
+                self.assertIsInstance(line, six.string_types,
                                       ('get_protocol_lines values '
                                        'must be strings'))
                 self.assertRegexpMatches(line,

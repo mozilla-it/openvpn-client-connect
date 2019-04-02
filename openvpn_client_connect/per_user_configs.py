@@ -32,7 +32,7 @@ except ImportError:  # pragma: no cover
     # 3's module:
     from configparser import ConfigParser
 
-__all__ = ['GetUserRoutes']
+__all__ = ['GetUserRoutes', 'GetUserSearchDomains', ]
 
 
 class GetUserRoutes(object):
@@ -241,3 +241,104 @@ class GetUserRoutes(object):
         # In the future, this may bear reworking to move cidr_merge later in
         # the process, but we're not there yet.
         return all_routes
+
+
+class GetUserSearchDomains(object):
+    """
+        This is mainly implemented as a class because it's an easier way to
+        keep track of our config-file based configuration.  For the most part
+        this class acts as a utility that you query for information about a
+        user.  In that sense, it's pretty close to a straightforward script.
+    """
+    def __init__(self, conf_file):
+        """
+            ingest the config file so other methods can use it
+        """
+        self.configfile = conf_file
+        _config = self._ingest_config_from_file(conf_file)
+
+        try:
+            _search_domains = ast.literal_eval(
+                _config.get('client-connect', 'GLOBAL_SEARCH_DOMAINS'))
+        except:  # pylint: disable=bare-except
+            # This bare-except is due to 2.7 limitations in configparser.
+            _search_domains = []
+        if not isinstance(_search_domains, list):  # pragma: no cover
+            _search_domains = []
+        self.search_domains = _search_domains
+
+        try:
+            _dynamic_dict = ast.literal_eval(
+                _config.get('dynamic-dns-search', 'dns_search_domain_map'))
+        except:  # pylint: disable=bare-except
+            # This bare-except is due to 2.7 limitations in configparser.
+            _dynamic_dict = {}
+        if not isinstance(_dynamic_dict, dict):  # pragma: no cover
+            _dynamic_dict = {}
+        self.dynamic_dict = _dynamic_dict
+
+    @staticmethod
+    def _ingest_config_from_file(conf_file):
+        """
+            pull in config variables from a system file
+        """
+        if not isinstance(conf_file, list):
+            conf_file = [conf_file]
+        config = ConfigParser()
+        for filename in conf_file:
+            if os.path.isfile(filename):
+                try:
+                    config.read(filename)
+                    break
+                except:  # pragma: no cover  pylint: disable=bare-except
+                    # This bare-except is due to 2.7
+                    # limitations in configparser.
+                    pass
+        # Note that there's no 'else' here.  You could have no config file.
+        # The init will assume default values where there's no config.
+        return config
+
+    def build_search_domains(self, user_groups):
+        """
+            Build the set of search domains that should exist for someone
+            who has a certain set of groups.
+        """
+        # The global domains form the base list:
+        return_list = list(self.search_domains)
+        #return_list = self.search_domains.copy()
+        # Now, loop through the user's groups list
+        for user_group in sorted(user_groups):
+            # If their group has anything special associated with it,
+            # We should do something.
+            if user_group in self.dynamic_dict:
+                # Find what we should add:
+                value = self.dynamic_dict[user_group]
+                if not isinstance(value, list):
+                    value = [value]
+                for candidate_domain in value:
+                    if not isinstance(candidate_domain, basestring):
+                        continue
+                    elif not candidate_domain:
+                        # In case someone left a blank string:
+                        continue
+                    elif candidate_domain in return_list:
+                        continue
+                    else:
+                        return_list.append(candidate_domain)
+        return return_list
+
+    def get_search_domains(self, user_string):
+        """
+            This is the main function of the class, and builds out the
+            search domains we want to have available for a user
+
+            returns a list of strings.
+        """
+        if user_string:
+            iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+            # Get the user's ACLs:
+            user_acls = iam_searcher.get_allowed_vpn_acls(user_string)
+            user_groups = list(set([x.rule for x in user_acls]))
+        else:
+            user_groups = []
+        return self.build_search_domains(user_groups)
