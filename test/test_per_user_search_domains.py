@@ -5,6 +5,7 @@ import sys
 import os.path
 import six
 sys.path.insert(1, 'iamvpnlibrary')
+import iamvpnlibrary
 # prepend the iam library so that we can locally test.
 from openvpn_client_connect import per_user_configs  # pylint: disable=wrong-import-position
 # We import our interesting library last, after modifying the
@@ -31,6 +32,7 @@ class PublicTestsMixin(object):
                               'default search_domains must be a list')
         self.assertIsInstance(self.library.dynamic_dict, dict,
                               'default dynamic_dict must be a dict')
+        self.assertIsInstance(self.library.iam_searcher, iamvpnlibrary.IAMVPNLibrary)
 
     def test_build_search_domains(self):
         """

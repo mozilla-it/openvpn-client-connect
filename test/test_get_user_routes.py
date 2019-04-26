@@ -5,6 +5,7 @@ import sys
 import os.path
 from netaddr import IPNetwork
 sys.path.insert(1, 'iamvpnlibrary')
+import iamvpnlibrary
 # prepend the iam library so that we can locally test.
 from openvpn_client_connect import per_user_configs  # pylint: disable=wrong-import-position
 # We import our interesting library last, after modifying the
@@ -24,6 +25,7 @@ class PublicTestsMixin(object):
         self.assertIn('FREE_ROUTES', self.library.config)
         self.assertIn('COMPREHENSIVE_OFFICE_ROUTES', self.library.config)
         self.assertIn('PER_OFFICE_ROUTES', self.library.config)
+        self.assertIsInstance(self.library.iam_searcher, iamvpnlibrary.IAMVPNLibrary)
 
     def test_get_office_routes_classic(self):
         """

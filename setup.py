@@ -44,7 +44,7 @@ setup(
                  'This package is built upon commit ' + git_version()),
     long_description=open('README.md').read(),
     license="MPL",
-    install_requires=['iamvpnlibrary>=0.8.2', 'netaddr'],
+    install_requires=['iamvpnlibrary>=0.9.0', 'netaddr'],
     scripts=['scripts/openvpn-client-connect', 'scripts/vpn-user-routes'],
     packages=['openvpn_client_connect'],
 )

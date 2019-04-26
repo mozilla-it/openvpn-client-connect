@@ -141,7 +141,7 @@ class ClientConnect(object):
         """
             pull in config variables from a system file
         """
-        if isinstance(conf_file, basestring):
+        if not isinstance(conf_file, list):
             conf_file = [conf_file]
         config = ConfigParser()
         for filename in conf_file:
@@ -167,14 +167,15 @@ class ClientConnect(object):
             return_lines.append(_line)
         return return_lines
 
-    def get_search_domains_lines(self, username=None):
+    def get_search_domains_lines(self, username_is=None, username_as=None):
         """
             Return the push lines for a user to have DNS search domains.
             We will do extra domains for certain users.
             ... someday.
         """
         gusd = GetUserSearchDomains(self.configfile)
-        domains = gusd.get_search_domains(username)
+        effective_username = gusd.iam_searcher.verify_sudo_user(username_is, username_as)
+        domains = gusd.get_search_domains(effective_username)
         return_lines = []
         for server in domains:
             _line = 'push "dhcp-option DOMAIN {}"'.format(server)
@@ -191,30 +192,31 @@ class ClientConnect(object):
             return_lines.append(_line)
         return return_lines
 
-    def get_dynamic_route_lines(self, client_username, client_ip):
+    def get_dynamic_route_lines(self, username_is, username_as=None, client_ip=None):
         """
             Return the push lines for dynamic/per-user routes.
         """
         return_lines = []
         if self.office_ip_mapping:
+            user_at_office = None
             # Is this an office connection?
-            for site, site_ip in self.office_ip_mapping.items():
-                if isinstance(site_ip, list):
-                    # site_ip is a list of possible IPs for the office
-                    if client_ip in site_ip:
-                        user_at_office = site
-                        break
-                else:
-                    # site_ip is not a list, and thus is (assumed)
-                    # a string of the office IP
-                    if client_ip == site_ip:
-                        user_at_office = site
-                        break
-            else:
-                user_at_office = None
+            if client_ip is not None:
+                for site, site_ip in self.office_ip_mapping.items():
+                    if isinstance(site_ip, list):
+                        # site_ip is a list of possible IPs for the office
+                        if client_ip in site_ip:
+                            user_at_office = site
+                            break
+                    else:
+                        # site_ip is not a list, and thus is (assumed)
+                        # a string of the office IP
+                        if client_ip == site_ip:
+                            user_at_office = site
+                            break
 
             gur = GetUserRoutes(self.configfile)
-            user_routes = gur.build_user_routes(client_username,
+            effective_username = gur.iam_searcher.verify_sudo_user(username_is, username_as)
+            user_routes = gur.build_user_routes(effective_username,
                                                 user_at_office)
 
             for net_obj in user_routes:

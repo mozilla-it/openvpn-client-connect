@@ -10,7 +10,7 @@ import openvpn_client_connect
 sys.dont_write_bytecode = True
 
 
-def build_lines(conf_file, username, client_ip, client_version):
+def build_lines(conf_file, username_is, username_as, client_ip, client_version):
     """
         Create the contents of the lines that should be returned
         to the connecting client.
@@ -18,9 +18,12 @@ def build_lines(conf_file, username, client_ip, client_version):
     config_object = openvpn_client_connect.ClientConnect(conf_file)
     output_array = []
     output_array += config_object.get_dns_server_lines()
-    output_array += config_object.get_search_domains_lines(username)
+    output_array += config_object.get_search_domains_lines(username_is=username_is,
+                                                           username_as=username_as)
     output_array += openvpn_client_connect.max_route_lines(client_version)
-    output_array += config_object.get_dynamic_route_lines(username, client_ip)
+    output_array += config_object.get_dynamic_route_lines(username_is=username_is,
+                                                          username_as=username_as,
+                                                          client_ip=client_ip)
     output_array += config_object.get_static_route_lines()
     output_array += config_object.get_protocol_lines()
     return output_array
@@ -55,10 +58,7 @@ def main():
     # https://openvpn.net/index.php/open-source/documentation/manuals/65-openvpn-20x-manpage.html
     usercn = os.environ.get('common_name')
     trusted_ip = os.environ.get('trusted_ip')
-
-    if not usercn:
-        # alternately, "The username provided by a connecting client."
-        usercn = os.environ.get('username')
+    unsafe_username = os.environ.get('username')
 
     # Super failure in openvpn, or hacking, or an improper test from a human.
     if not usercn:
@@ -70,7 +70,8 @@ def main():
 
     output_array = build_lines(
         conf_file=args.conffile,
-        username=usercn,
+        username_is=usercn,
+        username_as=unsafe_username,
         client_ip=trusted_ip,
         client_version=client_version_string
         )

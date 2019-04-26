@@ -115,7 +115,7 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(obj.office_ip_mapping), 0,
                                ('office_ip_mapping should not be '
                                 'empty on a dynamic test'))
-            for _key, val in obj.office_ip_mapping.iteritems():
+            for _key, val in obj.office_ip_mapping.items():
                 self.assertIsInstance(val, (list, six.string_types),
                                       ('office_ip_mapping values '
                                        'must be lists or strings'))
@@ -220,25 +220,25 @@ class TestClass(unittest.TestCase):
             raise self.skipTest('No testing/normal_user defined')
         normal_user = self.users.get('testing', 'normal_user')
         for obj in self.configs['all']:
-            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
+            result = obj.get_dynamic_route_lines(username_is=normal_user, client_ip=self.test_office_ip)
             self.assertIsInstance(result, list,
                                   'get_dynamic_route_lines must be a list')
         for obj in self.configs['all']:
-            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
+            result = obj.get_dynamic_route_lines(username_is=normal_user, client_ip=self.test_office_ip)
             self.assertIsInstance(result, list,
                                   'get_dynamic_route_lines must be a list')
         for obj in self.configs['invalid']:
-            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
+            result = obj.get_dynamic_route_lines(username_is=normal_user, client_ip=self.test_office_ip)
             self.assertEqual(len(result), 0,
                              ('get_dynamic_route_lines must '
                               'be empty on null config'))
         for obj in self.configs['staticonly']:
-            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
+            result = obj.get_dynamic_route_lines(username_is=normal_user, client_ip=self.test_office_ip)
             self.assertEqual(len(result), 0,
                              ('get_dynamic_route_lines must '
                               'be empty on static config'))
         for obj in self.configs['dynamics']:
-            result = obj.get_dynamic_route_lines(normal_user, self.test_office_ip)
+            result = obj.get_dynamic_route_lines(username_is=normal_user, client_ip=self.test_office_ip)
             self.assertGreater(len(result), 0,
                                ('get_dynamic_route_lines must be '
                                 'a populated list'))

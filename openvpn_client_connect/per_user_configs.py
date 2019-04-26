@@ -22,6 +22,7 @@
 import os
 import sys
 import ast
+import six
 import iamvpnlibrary
 from netaddr import IPNetwork, cidr_merge, cidr_exclude
 sys.dont_write_bytecode = True
@@ -84,8 +85,9 @@ class GetUserRoutes(object):
                                                  for routestr in _officeroutes]
         config['PER_OFFICE_ROUTES'] = {office: IPNetwork(routestr)
                                        for office, routestr in
-                                       _perofficeroutes.iteritems()}
+                                       _perofficeroutes.items()}
         self.config = config
+        self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
 
     @staticmethod
     def _ingest_config_from_file(conf_file):
@@ -159,7 +161,7 @@ class GetUserRoutes(object):
                 user_office_routes = []
             else:
                 user_office_routes = self.config['COMPREHENSIVE_OFFICE_ROUTES']
-        elif isinstance(from_office, basestring):
+        elif isinstance(from_office, six.string_types):
             if from_office in self.config['PER_OFFICE_ROUTES']:
                 user_office_routes = self.route_exclusion(
                     self.config['COMPREHENSIVE_OFFICE_ROUTES'],
@@ -180,9 +182,8 @@ class GetUserRoutes(object):
 
             returns a list of IPNetwork objects.
         """
-        iam_searcher = iamvpnlibrary.IAMVPNLibrary()
         # Get the user's ACLs:
-        user_acl_strings = iam_searcher.get_allowed_vpn_ips(user_string)
+        user_acl_strings = self.iam_searcher.get_allowed_vpn_ips(user_string)
         if not user_acl_strings:
             # If the user has NO acls, get out now.  We're probably in
             # a bad case where someone doesn't exist, or we've had an
@@ -276,6 +277,7 @@ class GetUserSearchDomains(object):
         if not isinstance(_dynamic_dict, dict):  # pragma: no cover
             _dynamic_dict = {}
         self.dynamic_dict = _dynamic_dict
+        self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
 
     @staticmethod
     def _ingest_config_from_file(conf_file):
@@ -316,7 +318,7 @@ class GetUserSearchDomains(object):
                 if not isinstance(value, list):
                     value = [value]
                 for candidate_domain in value:
-                    if not isinstance(candidate_domain, basestring):
+                    if not isinstance(candidate_domain, six.string_types):
                         continue
                     elif not candidate_domain:
                         # In case someone left a blank string:
@@ -335,9 +337,8 @@ class GetUserSearchDomains(object):
             returns a list of strings.
         """
         if user_string:
-            iam_searcher = iamvpnlibrary.IAMVPNLibrary()
             # Get the user's ACLs:
-            user_acls = iam_searcher.get_allowed_vpn_acls(user_string)
+            user_acls = self.iam_searcher.get_allowed_vpn_acls(user_string)
             user_groups = list(set([x.rule for x in user_acls]))
         else:
             user_groups = []
