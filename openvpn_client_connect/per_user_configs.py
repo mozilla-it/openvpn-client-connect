@@ -87,7 +87,11 @@ class GetUserRoutes(object):
                                        for office, routestr in
                                        _perofficeroutes.items()}
         self.config = config
-        self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+        try:
+            self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+        except RuntimeError:
+            # Couldn't connect to the IAM service:
+            self.iam_searcher = None
 
     @staticmethod
     def _ingest_config_from_file(conf_file):
@@ -182,6 +186,9 @@ class GetUserRoutes(object):
 
             returns a list of IPNetwork objects.
         """
+        if not self.iam_searcher:
+            # No connection to the IAM server
+            return []
         # Get the user's ACLs:
         user_acl_strings = self.iam_searcher.get_allowed_vpn_ips(user_string)
         if not user_acl_strings:
@@ -277,7 +284,11 @@ class GetUserSearchDomains(object):
         if not isinstance(_dynamic_dict, dict):  # pragma: no cover
             _dynamic_dict = {}
         self.dynamic_dict = _dynamic_dict
-        self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+        try:
+            self.iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+        except RuntimeError:
+            # Couldn't connect to the IAM service:
+            self.iam_searcher = None
 
     @staticmethod
     def _ingest_config_from_file(conf_file):
@@ -336,10 +347,10 @@ class GetUserSearchDomains(object):
 
             returns a list of strings.
         """
+        user_groups = []
         if user_string:
-            # Get the user's ACLs:
-            user_acls = self.iam_searcher.get_allowed_vpn_acls(user_string)
-            user_groups = list(set([x.rule for x in user_acls]))
-        else:
-            user_groups = []
+            if self.iam_searcher:
+                # Get the user's ACLs:
+                user_acls = self.iam_searcher.get_allowed_vpn_acls(user_string)
+                user_groups = list(set([x.rule for x in user_acls]))
         return self.build_search_domains(user_groups)

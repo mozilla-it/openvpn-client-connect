@@ -174,8 +174,11 @@ class ClientConnect(object):
             ... someday.
         """
         gusd = GetUserSearchDomains(self.configfile)
-        effective_username = gusd.iam_searcher.verify_sudo_user(username_is, username_as)
-        domains = gusd.get_search_domains(effective_username)
+        if gusd.iam_searcher:
+            effective_username = gusd.iam_searcher.verify_sudo_user(username_is, username_as)
+            domains = gusd.get_search_domains(effective_username)
+        else:
+            domains = []
         return_lines = []
         for server in domains:
             _line = 'push "dhcp-option DOMAIN {}"'.format(server)
@@ -215,9 +218,12 @@ class ClientConnect(object):
                             break
 
             gur = GetUserRoutes(self.configfile)
-            effective_username = gur.iam_searcher.verify_sudo_user(username_is, username_as)
-            user_routes = gur.build_user_routes(effective_username,
-                                                user_at_office)
+            if gur.iam_searcher:
+                effective_username = gur.iam_searcher.verify_sudo_user(username_is, username_as)
+                user_routes = gur.build_user_routes(effective_username,
+                                                    user_at_office)
+            else:
+                user_routes = []
 
             for net_obj in user_routes:
                 # For one entry per line, remove the trailing comma
