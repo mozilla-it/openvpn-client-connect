@@ -1,23 +1,11 @@
-#!/usr/bin/python
 """ Test suite for the per_user_configs search domains """
 import unittest
-import sys
 import os.path
+import test.context  # pylint: disable=unused-import
 import six
-sys.path.insert(1, 'iamvpnlibrary')
+from six.moves import configparser
 import iamvpnlibrary
-# prepend the iam library so that we can locally test.
-from openvpn_client_connect import per_user_configs  # pylint: disable=wrong-import-position
-# We import our interesting library last, after modifying the
-# search order, so we pick up the local copy + libraries,
-# rather than ones that might be already installed.
-try:
-    # 2.7's module:
-    from ConfigParser import NoOptionError, NoSectionError
-except ImportError:  # pragma: no cover
-    # 3's module:
-    from configparser import NoOptionError, NoSectionError
-
+from openvpn_client_connect import per_user_configs
 
 class PublicTestsMixin(object):
     """
@@ -308,6 +296,44 @@ class TestSearchDomainsUser(unittest.TestCase):
         # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
+    def test_03_ingest_no_config_files(self):
+        """ With no config files, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file([])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_04_ingest_no_config_file(self):
+        """ With all missing config files, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file(['/tmp/no-such-file.txt'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_05_ingest_bad_config_file(self):
+        """ With a bad config file, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file(['test/context.py'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_06_ingest_config_from_file(self):
+        """ With an actual config file, get a populated ConfigParser """
+        test_reading_file = '/tmp/test-reader.txt'
+        with open(test_reading_file, 'w') as filepointer:
+            filepointer.write('[aa]\nbb = cc\n')
+        filepointer.close()
+        result = self.library._ingest_config_from_file(['/tmp/test-reader.txt'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), ['aa'],
+                         'Should have found one configfile section.')
+        self.assertEqual(result.options('aa'), ['bb'],
+                         'Should have found one option.')
+        self.assertEqual(result.get('aa', 'bb'), 'cc',
+                         'Should have read a correct value.')
+        os.remove(test_reading_file)
+
     def test_getsearch(self):
         """
             This seeks to test that a user who doesn't exist gets the
@@ -317,11 +343,11 @@ class TestSearchDomainsUser(unittest.TestCase):
         """
         try:
             bad_user = self.users.get('testing', 'bad_user')
-        except (NoOptionError, NoSectionError):  # pragma: no cover
+        except (configparser.NoOptionError, configparser.NoSectionError):  # pragma: no cover
             raise self.skipTest('No testing/bad_user defined')
         try:
             normal_user = self.users.get('testing', 'normal_user')
-        except (NoOptionError, NoSectionError):  # pragma: no cover
+        except (configparser.NoOptionError, configparser.NoSectionError):  # pragma: no cover
             raise self.skipTest('No testing/normal_user defined')
 
         bad = self.library.get_search_domains(bad_user)

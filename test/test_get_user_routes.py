@@ -1,16 +1,12 @@
-#!/usr/bin/python
 """ Test suite for the utils library """
 import unittest
-import sys
 import os.path
+import test.context  # pylint: disable=unused-import
+import mock
 from netaddr import IPNetwork
-sys.path.insert(1, 'iamvpnlibrary')
+from six.moves import configparser
 import iamvpnlibrary
-# prepend the iam library so that we can locally test.
-from openvpn_client_connect import per_user_configs  # pylint: disable=wrong-import-position
-# We import our interesting library last, after modifying the
-# search order, so we pick up the local copy + libraries,
-# rather than ones that might be already installed.
+from openvpn_client_connect import per_user_configs
 
 
 class PublicTestsMixin(object):
@@ -26,6 +22,44 @@ class PublicTestsMixin(object):
         self.assertIn('COMPREHENSIVE_OFFICE_ROUTES', self.library.config)
         self.assertIn('PER_OFFICE_ROUTES', self.library.config)
         self.assertIsInstance(self.library.iam_searcher, iamvpnlibrary.IAMVPNLibrary)
+
+    def test_03_ingest_no_config_files(self):
+        """ With no config files, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file([])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_04_ingest_no_config_file(self):
+        """ With all missing config files, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file(['/tmp/no-such-file.txt'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_05_ingest_bad_config_file(self):
+        """ With a bad config file, get an empty ConfigParser """
+        result = self.library._ingest_config_from_file(['test/context.py'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
+
+    def test_06_ingest_config_from_file(self):
+        """ With an actual config file, get a populated ConfigParser """
+        test_reading_file = '/tmp/test-reader.txt'
+        with open(test_reading_file, 'w') as filepointer:
+            filepointer.write('[aa]\nbb = cc\n')
+        filepointer.close()
+        result = self.library._ingest_config_from_file(['/tmp/test-reader.txt'])
+        self.assertIsInstance(result, configparser.ConfigParser,
+                              'Did not create a config object')
+        self.assertEqual(result.sections(), ['aa'],
+                         'Should have found one configfile section.')
+        self.assertEqual(result.options('aa'), ['bb'],
+                         'Should have found one option.')
+        self.assertEqual(result.get('aa', 'bb'), 'cc',
+                         'Should have read a correct value.')
+        os.remove(test_reading_file)
 
     def test_get_office_routes_classic(self):
         """
@@ -162,6 +196,8 @@ class PublicTestsMixin(object):
             available routes, we can't do an awesome check.  But we can
             look for structure.
         """
+        with mock.patch.object(self.library, 'iam_searcher', new=None):
+            self.assertEqual(self.library.build_user_routes('bob', True), [])
         if not self.users.has_section('testing'):  # pragma: no cover
             raise self.skipTest('No testing section defined')
         if not self.users.has_option('testing', 'normal_user'):  # pragma: no cover

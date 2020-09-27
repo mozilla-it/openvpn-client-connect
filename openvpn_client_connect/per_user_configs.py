@@ -23,15 +23,14 @@ import os
 import sys
 import ast
 import six
-import iamvpnlibrary
+from six.moves import configparser
 from netaddr import IPNetwork, cidr_merge, cidr_exclude
+import iamvpnlibrary
 sys.dont_write_bytecode = True
-try:
-    # 2.7's module:
-    from ConfigParser import SafeConfigParser as ConfigParser
-except ImportError:  # pragma: no cover
-    # 3's module:
-    from configparser import ConfigParser
+#try:
+#    import configparser
+#except ImportError:  # pragma: no cover
+#    from six.moves import configparser
 
 __all__ = ['GetUserRoutes', 'GetUserSearchDomains', ]
 
@@ -100,15 +99,13 @@ class GetUserRoutes(object):
         """
         if not isinstance(conf_file, list):
             conf_file = [conf_file]
-        config = ConfigParser()
+        config = configparser.ConfigParser()
         for filename in conf_file:
             if os.path.isfile(filename):
                 try:
                     config.read(filename)
                     break
-                except:  # pragma: no cover  pylint: disable=bare-except
-                    # This bare-except is due to 2.7
-                    # limitations in configparser.
+                except (configparser.Error):
                     pass
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.
@@ -297,15 +294,13 @@ class GetUserSearchDomains(object):
         """
         if not isinstance(conf_file, list):
             conf_file = [conf_file]
-        config = ConfigParser()
+        config = configparser.ConfigParser()
         for filename in conf_file:
             if os.path.isfile(filename):
                 try:
                     config.read(filename)
                     break
-                except:  # pragma: no cover  pylint: disable=bare-except
-                    # This bare-except is due to 2.7
-                    # limitations in configparser.
+                except (configparser.Error):
                     pass
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.
@@ -331,13 +326,12 @@ class GetUserSearchDomains(object):
                 for candidate_domain in value:
                     if not isinstance(candidate_domain, six.string_types):
                         continue
-                    elif not candidate_domain:
+                    if not candidate_domain:
                         # In case someone left a blank string:
                         continue
-                    elif candidate_domain in return_list:
+                    if candidate_domain in return_list:
                         continue
-                    else:
-                        return_list.append(candidate_domain)
+                    return_list.append(candidate_domain)
         return return_list
 
     def get_search_domains(self, user_string):
@@ -352,5 +346,6 @@ class GetUserSearchDomains(object):
             if self.iam_searcher:
                 # Get the user's ACLs:
                 user_acls = self.iam_searcher.get_allowed_vpn_acls(user_string)
-                user_groups = list(set([x.rule for x in user_acls]))
+                #user_groups = list(set([x.rule for x in user_acls]))
+                user_groups = list({x.rule for x in user_acls})
         return self.build_search_domains(user_groups)

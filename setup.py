@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ Setup script """
 
 import os
@@ -45,6 +44,9 @@ setup(
     long_description=open('README.md').read(),
     license="MPL",
     install_requires=['iamvpnlibrary>=0.10.0', 'netaddr'],
-    scripts=['scripts/openvpn-client-connect', 'scripts/vpn-user-routes'],
+    entry_points={
+        'console_scripts': ['openvpn-client-connect=openvpn_client_connect/openvpn_script:main',
+                            'vpn-user-routes=openvpn_client_connect/vpn_user_routes:main'],
+    },
     packages=['openvpn_client_connect'],
 )

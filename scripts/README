@@ -1,5 +1,0 @@
-* `openvpn-client-connect` is intended to be called by openvpn according to its protocol
-See https://community.openvpn.net/openvpn/wiki/Openvpn24ManPage and consider the 'client-connect cmd' and 'environmental variables' sections'
-
-* `vpn-user-routes` is intended to be a utility script for admins.  "What routes would I serve to THIS person?"  Bypasses most of the vpn-specifics in favor of IAM-related answers.
-

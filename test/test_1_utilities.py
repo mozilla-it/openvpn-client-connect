@@ -1,12 +1,9 @@
-#!/usr/bin/python
 """ Test suite for the openvpn_client_connect non-class methods """
 import unittest
-import sys
+import test.context  # pylint: disable=unused-import
 import six
-sys.path.insert(1, 'iamvpnlibrary')
-from openvpn_client_connect import versioncompare  # pylint: disable=wrong-import-position
-from openvpn_client_connect import max_route_lines  # pylint: disable=wrong-import-position
-sys.dont_write_bytecode = True
+from openvpn_client_connect.client_connect import versioncompare
+from openvpn_client_connect.client_connect import max_route_lines
 
 
 class TestUtilities(unittest.TestCase):
@@ -51,9 +48,8 @@ class TestUtilities(unittest.TestCase):
                          'max_route_lines must only return 1 item')
         self.assertIsInstance(retval[0], six.string_types,
                               'max_route_lines\'s item must be a string')
-        self.assertRegexpMatches(retval[0], 'max-routes',
-                                 'max_route_lines must return a string '
-                                 'containing max-routes')
+        six.assertRegex(self, retval[0], 'max-routes',
+                        'max_route_lines must return a string containing max-routes')
 
         retval = max_route_lines('2.3.13')
         self.assertIsInstance(retval, list,
@@ -62,9 +58,8 @@ class TestUtilities(unittest.TestCase):
                          'max_route_lines must only return 1 item')
         self.assertIsInstance(retval[0], six.string_types,
                               'max_route_lines\'s item must be a string')
-        self.assertRegexpMatches(retval[0], 'max-routes',
-                                 'max_route_lines must return a string '
-                                 'containing max-routes')
+        six.assertRegex(self, retval[0], 'max-routes',
+                        'max_route_lines must return a string containing max-routes')
 
         retval = max_route_lines('2.4.4')
         self.assertIsInstance(retval, list,

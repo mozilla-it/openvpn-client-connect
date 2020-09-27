@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
     Script to give VPN clients their runtime config.
     Mostly focused on routes, dns, and search domains.
@@ -6,7 +5,7 @@
 import os
 import sys
 from argparse import ArgumentParser
-import openvpn_client_connect
+import openvpn_client_connect.client_connect
 sys.dont_write_bytecode = True
 
 
@@ -15,12 +14,12 @@ def build_lines(conf_file, username_is, username_as, client_ip, client_version):
         Create the contents of the lines that should be returned
         to the connecting client.
     """
-    config_object = openvpn_client_connect.ClientConnect(conf_file)
+    config_object = openvpn_client_connect.client_connect.ClientConnect(conf_file)
     output_array = []
     output_array += config_object.get_dns_server_lines()
     output_array += config_object.get_search_domains_lines(username_is=username_is,
                                                            username_as=username_as)
-    output_array += openvpn_client_connect.max_route_lines(client_version)
+    output_array += openvpn_client_connect.client_connect.max_route_lines(client_version)
     output_array += config_object.get_dynamic_route_lines(username_is=username_is,
                                                           username_as=username_as,
                                                           client_ip=client_ip)
@@ -29,7 +28,7 @@ def build_lines(conf_file, username_is, username_as, client_ip, client_version):
     return output_array
 
 
-def main():
+def main_work(argv):
     """
         Print the config that should go to each client into a file.
         Return True on success, False upon failure.
@@ -44,7 +43,7 @@ def main():
                         dest='conffile', default=None)
     parser.add_argument('output_filename', type=str,
                         help='Filename to push config to')
-    args = parser.parse_args()
+    args = parser.parse_args(argv[1:])
 
     # 2.2 did not send IV_VER.
     # 2.3+ clients send IV_VER.
@@ -64,7 +63,7 @@ def main():
     if not usercn:
         print('No common_name or username environment variable provided.')
         return False
-    elif not trusted_ip:
+    if not trusted_ip:
         print('No trusted_ip environment variable provided.')
         return False
 
@@ -86,9 +85,11 @@ def main():
         return False
     return True
 
-
-if __name__ == '__main__':
-    if main():
+def main():
+    """ Interface to the outside """
+    if main_work(sys.argv):
         sys.exit(0)
-    else:
-        sys.exit(1)
+    sys.exit(1)
+
+if __name__ == '__main__':  # pragma: no cover
+    main()

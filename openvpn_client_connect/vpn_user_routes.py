@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
     This script's job is to print out a list of ROUTES that a user
     is entitled to have access to, and should be pushed upon VPN connect.
@@ -34,7 +33,7 @@ from openvpn_client_connect.per_user_configs import GetUserRoutes
 sys.dont_write_bytecode = True
 
 
-def main():
+def main_work(argv):
     """
         Handle argument parsing, build a route list, and print it.
     """
@@ -55,7 +54,7 @@ def main():
                         dest='conffile', default=None)
     parser.add_argument('username', type=str,
                         help='User that is connecting to us')
-    args = parser.parse_args()
+    args = parser.parse_args(argv[1:])
 
     gur = GetUserRoutes(args.conffile)
     if args.office_id:
@@ -72,8 +71,13 @@ def main():
     # that bash will be able to iterate over
     for net_object in user_routes:
         # For one entry per line, remove the trailing comma
-        print("{network} {netmask}").format(network=net_object.network,
-                                            netmask=net_object.netmask)
+        print("{network} {netmask}".format(network=net_object.network,
+                                           netmask=net_object.netmask))
 
-if __name__ == "__main__":
+def main():
+    """ Interface to the outside """
+    main_work(sys.argv)
+    sys.exit(0)
+
+if __name__ == '__main__':  # pragma: no cover
     main()
