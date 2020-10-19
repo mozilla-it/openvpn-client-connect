@@ -5,7 +5,7 @@ import subprocess
 from setuptools import setup
 
 NAME = 'openvpn-client-connect'
-VERSION = '1.1.4'
+VERSION = '1.3.0'
 
 
 def git_version():
@@ -43,10 +43,10 @@ setup(
                  'This package is built upon commit ' + git_version()),
     long_description=open('README.md').read(),
     license="MPL",
-    install_requires=['iamvpnlibrary>=0.10.0', 'netaddr'],
+    install_requires=['iamvpnlibrary>=0.31.0', 'netaddr'],
     entry_points={
-        'console_scripts': ['openvpn-client-connect=openvpn_client_connect/openvpn_script:main',
-                            'vpn-user-routes=openvpn_client_connect/vpn_user_routes:main'],
+        'console_scripts': ['openvpn-client-connect=openvpn_client_connect.openvpn_script:main',
+                            'vpn-user-routes=openvpn_client_connect.vpn_user_routes:main'],
     },
     packages=['openvpn_client_connect'],
 )
