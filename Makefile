@@ -7,10 +7,12 @@ PLAIN_PYTHON = $(shell which python 2>/dev/null)
 PYTHON3 = $(shell which python3 2>/dev/null)
 ifneq (, $(PYTHON3))
   PYTHON_BIN = $(PYTHON3)
+  PY_PACKAGE_PREFIX=python3
   RPM_MAKE_TARGET = rpm3
 endif
 ifneq (, $(PLAIN_PYTHON))
   PYTHON_BIN = $(PLAIN_PYTHON)
+  PY_PACKAGE_PREFIX=python
   RPM_MAKE_TARGET = rpm2
 endif
 
@@ -43,11 +45,11 @@ pylint:
 rpm:  $(RPM_MAKE_TARGET)
 
 rpm2:
-	fpm -s python -t rpm --python-bin $(PYTHON_BIN) --no-python-fix-name --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
+	fpm -s python -t rpm --python-bin $(PYTHON_BIN) --no-python-fix-name --python-package-name-prefix $(PY_PACKAGE_PREFIX) --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
 	@rm -rf build $(PACKAGE).egg-info
 
 rpm3:
-	fpm -s python -t rpm --python-bin $(PYTHON_BIN) --no-python-fix-name --python-install-bin /usr/bin --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
+	fpm -s python -t rpm --python-bin $(PYTHON_BIN) --no-python-fix-name --python-package-name-prefix $(PY_PACKAGE_PREFIX) --python-install-bin /usr/bin --rpm-dist "$$(rpmbuild -E '%{?dist}' | sed -e 's#^\.##')" --iteration 1 setup.py
 	@rm -rf test/__pycache__
 	@rm -rf build $(PACKAGE).egg-info
 
