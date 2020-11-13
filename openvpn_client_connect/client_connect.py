@@ -85,9 +85,13 @@ class ClientConnect(object):
         self.dns_servers = []
         self.search_domains = []
         self.proto = None
+        self.min_version = None
         if _config.has_section('client-connect'):
             if _config.has_option('client-connect', 'protocol'):
                 self.proto = _config.get('client-connect', 'protocol')
+
+            if _config.has_option('client-connect', 'minimum-version'):
+                self.min_version = _config.get('client-connect', 'minimum-version')
 
             try:
                 self.dns_servers = ast.literal_eval(
@@ -147,6 +151,33 @@ class ClientConnect(object):
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.
         return config
+
+    def client_version_allowed(self, client_version):
+        """
+            Check if the client has a version above our minimum requirements.
+        """
+        if self.min_version is None:
+            # We have no minimums, so any client is good.
+            return True
+        # We have a minimum version requirement:
+        if not client_version:
+            # The client didn't tell us what version they are.  That's either
+            # an error, or a pre-2.3 client. (2.3 is when IV_VER was added)
+            if versioncompare('2.3', self.min_version) == 1:
+                # We shouldn't be here.  Don't set a minimum version below 2.3.
+                # But, for completeness sake, "it's indistinguishable" whether
+                # a nonreporting client is, we just know they're below 2.3.
+                # So, if you are awful enough to get here, allow the client,
+                # because you surely have a reason for being this crazy.
+                return True
+            # otherwise, you have a 2.3 minimum and a client who we presume is
+            # sub 2.3.  This is a guess, but a very good one.
+            return False
+        # Here, we have a reported version, and a minimum version.
+        if versioncompare(self.min_version, client_version) == 1:
+            # Our min_version is greater than your client version.  Sorry.
+            return False
+        return True
 
     def get_dns_server_lines(self):
         """

@@ -5,10 +5,6 @@ import test.context  # pylint: disable=unused-import
 import mock
 import netaddr
 import six
-#try:
-#    import configparser
-#except ImportError:  # pragma: no cover
-#    from six.moves import configparser
 from six.moves import configparser
 import openvpn_client_connect.client_connect
 
@@ -34,6 +30,7 @@ class TestClass(unittest.TestCase):
         doubleup = ccmod.ClientConnect('test_configs/doubleup.conf')
         singlenat = ccmod.ClientConnect('test_configs/singlenat.conf')
         multinat = ccmod.ClientConnect('test_configs/multinat.conf')
+        min_version = ccmod.ClientConnect('test_configs/min_version.conf')
         self.configs = {
             'dynamics': [udp_dyn, tcp_dyn,
                          doubleup,
@@ -41,9 +38,10 @@ class TestClass(unittest.TestCase):
             'dynamiconly': [udp_dyn, tcp_dyn],
             'statics': [udp_stat, tcp_stat, doubleup],
             'staticonly': [udp_stat, tcp_stat],
-            'udps': [udp_dyn, udp_stat, doubleup, wrongvals],
+            'udps': [udp_dyn, udp_stat, doubleup, wrongvals, min_version],
             'tcps': [tcp_dyn, tcp_stat],
             'invalid': [noconf, empty],
+            'min_version': [min_version],
             'valid': [udp_dyn, tcp_dyn,
                       udp_stat, tcp_stat,
                       doubleup,
@@ -51,6 +49,7 @@ class TestClass(unittest.TestCase):
             'all': [noconf, empty,
                     udp_dyn, tcp_dyn,
                     udp_stat, tcp_stat,
+                    min_version,
                     doubleup, wrongvals],
             }
         self.users = empty._ingest_config_from_file('test_configs/testing_users.conf')
@@ -107,6 +106,8 @@ class TestClass(unittest.TestCase):
         for obj in self.configs['invalid']:
             self.assertIsNone(obj.proto,
                               'proto should be None on an empty config')
+            self.assertIsNone(obj.min_version,
+                              'min_version should be None on an empty config')
         for obj in self.configs['udps']:
             self.assertIsInstance(obj.proto, six.string_types,
                                   'proto must be a string')
@@ -196,6 +197,36 @@ class TestClass(unittest.TestCase):
                                 'empty on a static test'))
             self.assertIsInstance(obj.routes[0], six.string_types,
                                   'static routes should be strings')
+
+    def test_init_06_minversion(self):
+        """ Verify that min_version is set. """
+        for obj in self.configs['min_version']:
+            self.assertIsInstance(obj.min_version, six.string_types,
+                                  'min_version should be a string')
+
+    def test_cliversion(self):
+        """ Verify that client_version_allowed does the right things. """
+        # It doesn't really matter who we grab, we're going to hack the
+        # library ourselves for this test:
+        library = self.configs['min_version'][0]
+        _orig = library.min_version
+        library.min_version = None
+        self.assertTrue(library.client_version_allowed(''))
+        self.assertTrue(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.6'))
+        library.min_version = '2.2'
+        self.assertTrue(library.client_version_allowed(''))
+        self.assertTrue(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.6'))
+        library.min_version = '2.3'
+        self.assertFalse(library.client_version_allowed(''))
+        self.assertTrue(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.6'))
+        library.min_version = '2.4'
+        self.assertFalse(library.client_version_allowed(''))
+        self.assertFalse(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.6'))
+        library.min_version = _orig
 
     def test_get_dns(self):
         """ Verify that get_dns_server_lines returns good lines """

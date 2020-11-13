@@ -9,6 +9,13 @@ import openvpn_client_connect.client_connect
 sys.dont_write_bytecode = True
 
 
+def client_version_allowed(conf_file, client_version):
+    """
+        Check our client version against the config'ed minimums
+    """
+    config_object = openvpn_client_connect.client_connect.ClientConnect(conf_file)
+    return config_object.client_version_allowed(client_version)
+
 def build_lines(conf_file, username_is, username_as, client_ip, client_version):
     """
         Create the contents of the lines that should be returned
@@ -65,6 +72,9 @@ def main_work(argv):
         return False
     if not trusted_ip:
         print('No trusted_ip environment variable provided.')
+        return False
+
+    if not client_version_allowed(args.conffile, client_version_string):
         return False
 
     output_array = build_lines(

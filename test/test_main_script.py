@@ -25,6 +25,14 @@ class TestMainScript(unittest.TestCase):
             if varname in os.environ:
                 del os.environ[varname]
 
+    def test_client_version_allowed(self):
+        ''' Verify client_version_allowed does what we expect '''
+        with mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector:
+            instance = mock_connector.return_value
+            with mock.patch.object(instance, 'client_version_allowed') as mock_cva:
+                self.script.client_version_allowed('fake_conffile', '2.x')
+        mock_cva.assert_called_once_with('2.x')
+
     def test_build_lines(self):
         ''' Verify build_lines does what we expect '''
         with mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector:
@@ -85,6 +93,16 @@ class TestMainScript(unittest.TestCase):
         self.assertFalse(result, 'With not-all environmental variables, main_work must fail')
         self.assertIn('No trusted_ip environment variable provided.', fake_out.getvalue())
 
+    def test_23_bad_version(self):
+        ''' Run but have a minimum version failure. '''
+        os.environ['common_name'] = 'bob-device'
+        os.environ['username'] = 'bobby.tables'
+        os.environ['trusted_ip'] = '10.20.30.40'
+        os.environ['IV_VER'] = '2.3'
+        with mock.patch.object(self.script, 'client_version_allowed', return_value=False):
+            result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
+        self.assertFalse(result, 'When versions are too low, main_work must be False')
+
     def test_23_cant_write(self):
         ''' Run but be unable to write a file. '''
         os.environ['common_name'] = 'bob-device'
@@ -102,7 +120,8 @@ class TestMainScript(unittest.TestCase):
         os.environ['username'] = 'bobby.tables'
         os.environ['trusted_ip'] = '10.20.30.40'
         os.environ['IV_VER'] = '2.4.6'
-        with mock.patch.object(self.script, 'build_lines') as mock_buildlines:
+        with mock.patch.object(self.script, 'build_lines') as mock_buildlines, \
+                mock.patch.object(self.script, 'client_version_allowed', return_value=True):
             with mock.patch('six.moves.builtins.open', create=True,
                             return_value=mock.MagicMock(spec=StringIO())) as mock_open:
                 result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
