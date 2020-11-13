@@ -257,7 +257,6 @@ class TestGetUserRoutesGood(PublicTestsMixin, unittest.TestCase):
         if not os.path.isfile(_conffile):  # pragma: no cover
             self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
         self.library = per_user_configs.GetUserRoutes(_conffile)
-        # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
 
@@ -270,7 +269,6 @@ class TestGetUserRoutesBad(PublicTestsMixin, unittest.TestCase):
         if not os.path.isfile(_conffile):  # pragma: no cover
             self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
         self.library = per_user_configs.GetUserRoutes(_conffile)
-        # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
 
@@ -281,5 +279,4 @@ class TestGetUserRoutesNofile(PublicTestsMixin, unittest.TestCase):
         _usersfile = 'test_configs/testing_users.conf'
         _conffile = 'test_configs/THIS_FILE_ISNT_HERE.conf'
         self.library = per_user_configs.GetUserRoutes(_conffile)
-        # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)

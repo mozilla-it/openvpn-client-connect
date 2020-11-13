@@ -293,7 +293,6 @@ class TestSearchDomainsUser(unittest.TestCase):
         _usersfile = 'test_configs/testing_users.conf'
         _conffile = 'test_configs/testing_search_domains.conf'
         self.library = per_user_configs.GetUserSearchDomains(_conffile)
-        # pylint: disable=protected-access
         self.users = self.library._ingest_config_from_file(_usersfile)
 
     def test_03_ingest_no_config_files(self):
