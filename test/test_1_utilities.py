@@ -19,11 +19,20 @@ class TestUtilities(unittest.TestCase):
         self.assertEqual(versioncompare('10.10.10.10.10',
                                         '10.10.10.10.10'), 0)
 
+        # Throw in some non-strings.
+        # This is less about the value returned.. this is somewhat of a
+        # garbage test since we don't do very smart things about non-numbers
+        # AND openvpn so far isn't using non-numbers.
+        self.assertEqual(versioncompare('1.1', '1.x'), 1)
+        self.assertEqual(versioncompare('2.x', '2.4'), 2)
+
         # Normal boring comparisons, for sanity checking:
         self.assertEqual(versioncompare('1.1', '1.0'), 1)
         self.assertEqual(versioncompare('1.0', '1.1'), 2)
         self.assertEqual(versioncompare('10.1', '10.0'), 1)
         self.assertEqual(versioncompare('10.0', '10.1'), 2)
+        self.assertEqual(versioncompare('10.10', '10.4'), 1)
+        self.assertEqual(versioncompare('10.4', '10.10'), 2)
         self.assertEqual(versioncompare('10.11', '10.10'), 1)
         self.assertEqual(versioncompare('10.10', '10.11'), 2)
         self.assertEqual(versioncompare('10.10.10.10.20',
@@ -67,9 +76,8 @@ class TestUtilities(unittest.TestCase):
         self.assertEqual(len(retval), 0,
                          'max_route_lines must not return an item')
 
-        # Make sure garbage input doesn't kill us
+        # Make sure garbage input doesn't kill us.  All we're looking
+        # for here is that this call doesn't traceback.
         retval = max_route_lines('urfburf')
         self.assertIsInstance(retval, list,
                               'max_route_lines must be a list')
-        self.assertEqual(len(retval), 0,
-                         'max_route_lines must not return an item')

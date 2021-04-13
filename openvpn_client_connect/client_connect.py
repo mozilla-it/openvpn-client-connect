@@ -5,6 +5,7 @@
 import os
 import sys
 import ast
+import re
 from six.moves import configparser
 from openvpn_client_connect.per_user_configs \
     import GetUserRoutes, GetUserSearchDomains
@@ -18,6 +19,11 @@ def versioncompare(arg1, arg2):
         1 = arg1 is greater
         2 = arg2 is greater
         example: 1.3.4 and 1.4 would return 2.
+
+        There is opportunity to improve this using modules like semver
+        but that introduces extra dependencies.  OpenVPN doesn't currently
+        use prerelease coding (that we care about?) so we're coding our own
+        version here.
     """
     verstr1 = arg1.split('.')
     verstr2 = arg2.split('.')
@@ -28,13 +34,22 @@ def versioncompare(arg1, arg2):
 
     for i in range(maxlength):
         try:
-            item1 = verstr1[i]
+            match1 = re.match(r'^(\d+)', verstr1[i])
         except IndexError:
             return 2
         try:
-            item2 = verstr2[i]
+            match2 = re.match(r'^(\d+)', verstr2[i])
         except IndexError:
             return 1
+
+        try:
+            item1 = int(match1.group(1))
+        except AttributeError:
+            item1 = 0
+        try:
+            item2 = int(match2.group(1))
+        except AttributeError:
+            item2 = 0
 
         if item1 > item2:
             return 1
@@ -159,7 +174,12 @@ class ClientConnect(object):
         if self.min_version is None:
             # We have no minimums, so any client is good.
             return True
-        # We have a minimum version requirement:
+        if re.match(r'^\d+\.\d+(?:\.\d+)?$', self.min_version) is None:
+            # Someone has put in a crazy minimum version.  There's no way we can
+            # know what to do here.  We're going to fail-open, because that's the
+            # less-impactful choice.
+            return True
+        # We have a server minimum version but no client version:
         if not client_version:
             # The client didn't tell us what version they are.  That's either
             # an error, or a pre-2.3 client. (2.3 is when IV_VER was added)
@@ -173,7 +193,7 @@ class ClientConnect(object):
             # otherwise, you have a 2.3 minimum and a client who we presume is
             # sub 2.3.  This is a guess, but a very good one.
             return False
-        # Here, we have a reported version, and a minimum version.
+        # We have a server minimum version, and a client reported version.
         if versioncompare(self.min_version, client_version) == 1:
             # Our min_version is greater than your client version.  Sorry.
             return False

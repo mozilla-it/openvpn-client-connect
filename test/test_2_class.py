@@ -226,6 +226,15 @@ class TestClass(unittest.TestCase):
         self.assertFalse(library.client_version_allowed(''))
         self.assertFalse(library.client_version_allowed('2.3.10'))
         self.assertTrue(library.client_version_allowed('2.4.6'))
+        library.min_version = '2.4.4'
+        self.assertFalse(library.client_version_allowed(''))
+        self.assertFalse(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.10'))
+        # Make sure garbage on the server fails open:
+        library.min_version = 'urfburf'
+        self.assertTrue(library.client_version_allowed(''))
+        self.assertTrue(library.client_version_allowed('2.3.10'))
+        self.assertTrue(library.client_version_allowed('2.4.10'))
         library.min_version = _orig
 
     def test_get_dns(self):
