@@ -210,6 +210,9 @@ class ClientConnect(object):
                 # _master is going to be considered the latest version in a family.
                 fake_version = '{}.999999'.format(gitcolon_match.group(1))
                 return self.client_version_allowed(fake_version)
+            # At this point, we have a weird client version we've never seen
+            # and haven't defined a way to handle.  Gotta say no.
+            return False
         # We have a well-formed client version,
         # We have a server minimum version, and a client reported version.
         if versioncompare(self.min_version, client_version) == 1:

@@ -240,6 +240,8 @@ class TestClass(unittest.TestCase):
         # Some android thing also pins:
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
+        # Deny something unparseable-but-close
+        self.assertFalse(library.client_version_allowed('2.5_m@ster'))
         # Make sure garbage on the server fails open:
         library.min_version = 'urfburf'
         self.assertTrue(library.client_version_allowed(''))
