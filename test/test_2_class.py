@@ -230,6 +230,16 @@ class TestClass(unittest.TestCase):
         self.assertFalse(library.client_version_allowed(''))
         self.assertFalse(library.client_version_allowed('2.3.10'))
         self.assertTrue(library.client_version_allowed('2.4.10'))
+        # Someone experimented with rolling their own
+        self.assertFalse(library.client_version_allowed('2.4_beta1'))
+        self.assertTrue(library.client_version_allowed('2.5_beta3'))
+        # ics-openvpn.blinkt.de follows master:
+        self.assertFalse(library.client_version_allowed('2.3_master'))
+        self.assertTrue(library.client_version_allowed('2.4_master'))
+        self.assertTrue(library.client_version_allowed('2.5_master'))
+        # Some android thing also pins:
+        self.assertTrue(library.client_version_allowed('3.git::58b92569'))
+        self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
         # Make sure garbage on the server fails open:
         library.min_version = 'urfburf'
         self.assertTrue(library.client_version_allowed(''))

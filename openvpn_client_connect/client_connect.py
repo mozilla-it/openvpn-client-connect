@@ -193,6 +193,24 @@ class ClientConnect(object):
             # otherwise, you have a 2.3 minimum and a client who we presume is
             # sub 2.3.  This is a guess, but a very good one.
             return False
+        if re.match(r'^\d+\.\d+(?:\.\d+)?$', client_version) is None:
+            # We have a poorly-formed client version.  This section is basically
+            # going to handle the edge cases we've found over time.
+            beta_match = re.match(r'^(\d+\.\d+)_beta', client_version)
+            if beta_match:
+                # beta is pre-release, but round up to .0
+                return self.client_version_allowed(beta_match.group(1))
+            gitmaster_match = re.match(r'^(\d+\.\d+)_master$', client_version)
+            if gitmaster_match:
+                # _master is going to be considered the latest version in a family.
+                fake_version = '{}.999999'.format(gitmaster_match.group(1))
+                return self.client_version_allowed(fake_version)
+            gitcolon_match = re.match(r'^(\d+)\.git::', client_version)
+            if gitcolon_match:
+                # _master is going to be considered the latest version in a family.
+                fake_version = '{}.999999'.format(gitcolon_match.group(1))
+                return self.client_version_allowed(fake_version)
+        # We have a well-formed client version,
         # We have a server minimum version, and a client reported version.
         if versioncompare(self.min_version, client_version) == 1:
             # Our min_version is greater than your client version.  Sorry.
