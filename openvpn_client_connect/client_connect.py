@@ -6,6 +6,7 @@ import os
 import sys
 import ast
 import re
+import netaddr
 from six.moves import configparser
 from openvpn_client_connect.per_user_configs \
     import GetUserRoutes, GetUserSearchDomains
@@ -243,16 +244,18 @@ class ClientConnect(object):
             user_at_office = None
             # Is this an office connection?
             if client_ip is not None:
+                client_ip_cidr = netaddr.IPNetwork(client_ip)
                 for site, site_ip in self.office_ip_mapping.items():
                     if isinstance(site_ip, list):
                         # site_ip is a list of possible IPs for the office
-                        if client_ip in site_ip:
-                            user_at_office = site
-                            break
+                        site_list = site_ip
                     else:
                         # site_ip is not a list, and thus is (assumed)
                         # a string of the office IP
-                        if client_ip == site_ip:
+                        site_list = [site_ip]
+                    for addr in site_list:
+                        cidr = netaddr.IPNetwork(addr)
+                        if client_ip_cidr in cidr:
                             user_at_office = site
                             break
 
