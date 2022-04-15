@@ -58,30 +58,6 @@ def versioncompare(arg1, arg2):
     return 0
 
 
-def max_route_lines(versionstring):
-    """
-        Determine if the client connecting needs to be told about
-        route limits.
-    """
-    return_lines = []
-    if not versionstring:
-        # This is either a 2.2 client, or a 2.3 server that isn't told
-        # anything.  Assume the former.
-        return_lines.append('push "max-routes 200"')
-    elif versioncompare('2.4', versionstring) == 1:
-        # 1 means A>B :  2.4 is greater than the client's version
-        #
-        # clients before 2.4 (2.2 and before don't send IV_VER, 2.3 does):
-        #     allow for up to 200 routes client-side (note that the server
-        #     will allow max 256 routes per client by default)
-        return_lines.append('push "max-routes 200"')
-    else:
-        # clients 2.4 and after:
-        #     max-routes has gone away: don't push this at all.
-        pass
-    return return_lines
-
-
 class ClientConnect(object):
     """
         This is mainly implemented as a class because it's an easier way to

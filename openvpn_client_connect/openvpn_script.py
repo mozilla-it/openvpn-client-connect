@@ -26,7 +26,6 @@ def build_lines(conf_file, username_is, username_as, client_ip, client_version):
     output_array += config_object.get_dns_server_lines()
     output_array += config_object.get_search_domains_lines(username_is=username_is,
                                                            username_as=username_as)
-    output_array += openvpn_client_connect.client_connect.max_route_lines(client_version)
     output_array += config_object.get_dynamic_route_lines(username_is=username_is,
                                                           username_as=username_as,
                                                           client_ip=client_ip)

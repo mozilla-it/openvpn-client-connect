@@ -8,3 +8,4 @@ Provides:
 * classic static route lines
 * protocol-specific lines as needed.
 
+Clients older than 2.4 are not supported.
