@@ -177,7 +177,7 @@ class ClientConnect(object):
             if beta_match:
                 # beta is pre-release, but round up to .0
                 return self.client_version_allowed(beta_match.group(1))
-            gitmaster_match = re.match(r'^(\d+\.\d+)_master$', client_version)
+            gitmaster_match = re.match(r'^(\d+\.\d+)_(?:master|git)$', client_version)
             if gitmaster_match:
                 # _master is going to be considered the latest version in a family.
                 fake_version = '{}.999999'.format(gitmaster_match.group(1))

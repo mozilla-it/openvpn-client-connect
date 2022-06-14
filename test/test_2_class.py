@@ -237,6 +237,8 @@ class TestClass(unittest.TestCase):
         self.assertFalse(library.client_version_allowed('2.3_master'))
         self.assertTrue(library.client_version_allowed('2.4_master'))
         self.assertTrue(library.client_version_allowed('2.5_master'))
+        # Debian started _git in 2022
+        self.assertTrue(library.client_version_allowed('2.6_git'))
         # Some android thing also pins:
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
