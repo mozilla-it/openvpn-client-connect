@@ -173,7 +173,7 @@ class ClientConnect(object):
         if re.match(r'^\d+\.\d+(?:\.\d+)?$', client_version) is None:
             # We have a poorly-formed client version.  This section is basically
             # going to handle the edge cases we've found over time.
-            beta_match = re.match(r'^(\d+\.\d+)_beta', client_version)
+            beta_match = re.match(r'^(\d+\.\d+)_(?:beta\d+|rc\d+)$', client_version)
             if beta_match:
                 # beta is pre-release, but round up to .0
                 return self.client_version_allowed(beta_match.group(1))

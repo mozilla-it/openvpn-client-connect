@@ -244,6 +244,11 @@ class TestClass(unittest.TestCase):
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
         # Deny something unparseable-but-close
         self.assertFalse(library.client_version_allowed('2.5_m@ster'))
+
+        library.min_version = '2.5'
+        # Debian shipped _rc2 in 2023 as part of bookworm/12 and bullseye backports.
+        self.assertTrue(library.client_version_allowed('2.6_rc2'))
+
         # Make sure garbage on the server fails open:
         library.min_version = 'urfburf'
         self.assertTrue(library.client_version_allowed(''))
