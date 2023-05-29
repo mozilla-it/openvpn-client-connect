@@ -9,19 +9,17 @@ import openvpn_client_connect.client_connect
 sys.dont_write_bytecode = True
 
 
-def client_version_allowed(conf_file, client_version):
+def client_version_allowed(config_object, client_version):
     """
         Check our client version against the config'ed minimums
     """
-    config_object = openvpn_client_connect.client_connect.ClientConnect(conf_file)
     return config_object.client_version_allowed(client_version)
 
-def build_lines(conf_file, username_is, username_as, client_ip, client_version):
+def build_lines(config_object, username_is, username_as, client_ip, client_version):
     """
         Create the contents of the lines that should be returned
         to the connecting client.
     """
-    config_object = openvpn_client_connect.client_connect.ClientConnect(conf_file)
     output_array = []
     output_array += config_object.get_dns_server_lines()
     output_array += config_object.get_search_domains_lines(username_is=username_is,
@@ -73,16 +71,18 @@ def main_work(argv):
         print('No trusted_ip environment variable provided.')
         return False
 
-    if not client_version_allowed(args.conffile, client_version_string):
+    config_object = openvpn_client_connect.client_connect.ClientConnect(args.conffile)
+
+    if not client_version_allowed(config_object, client_version_string):
         return False
 
     output_array = build_lines(
-        conf_file=args.conffile,
+        config_object=config_object,
         username_is=usercn,
         username_as=unsafe_username,
         client_ip=trusted_ip,
         client_version=client_version_string
-        )
+    )
     output_lines = '\n'.join(output_array) + '\n'
 
     try:

@@ -30,7 +30,7 @@ class TestMainScript(unittest.TestCase):
         with mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector:
             instance = mock_connector.return_value
             with mock.patch.object(instance, 'client_version_allowed') as mock_cva:
-                self.script.client_version_allowed('fake_conffile', '2.x')
+                self.script.client_version_allowed(instance, '2.x')
         mock_cva.assert_called_once_with('2.x')
 
     def test_build_lines(self):
@@ -42,7 +42,7 @@ class TestMainScript(unittest.TestCase):
                     mock.patch.object(instance, 'get_dynamic_route_lines') as mock_lines_dynroute, \
                     mock.patch.object(instance, 'get_static_route_lines') as mock_lines_statroute, \
                     mock.patch.object(instance, 'get_protocol_lines') as mock_lines_proto:
-                self.script.build_lines('fake_conffile', 'username_is', 'username_as',
+                self.script.build_lines(instance, 'username_is', 'username_as',
                                         'client_ip', '2.x')
         mock_lines_dns.assert_called_once_with()
         mock_lines_search.assert_called_once_with(username_is='username_is',
@@ -121,11 +121,13 @@ class TestMainScript(unittest.TestCase):
         os.environ['trusted_ip'] = '10.20.30.40'
         os.environ['IV_VER'] = '2.4.6'
         with mock.patch.object(self.script, 'build_lines') as mock_buildlines, \
+                mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector, \
                 mock.patch.object(self.script, 'client_version_allowed', return_value=True):
+            mock_cc = mock_connector.return_value
             with mock.patch('six.moves.builtins.open', create=True,
                             return_value=mock.MagicMock(spec=StringIO())) as mock_open:
                 result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
-        mock_buildlines.assert_called_once_with(conf_file='test/context.py',
+        mock_buildlines.assert_called_once_with(config_object=mock_cc,
                                                 username_is='bob-device',
                                                 username_as='bobby.tables',
                                                 client_ip='10.20.30.40',
