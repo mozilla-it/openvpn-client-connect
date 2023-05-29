@@ -32,8 +32,14 @@ sys.dont_write_bytecode = True
 #except ImportError:  # pragma: no cover
 #    from six.moves import configparser
 
-__all__ = ['GetUserRoutes', 'GetUserSearchDomains', ]
+__all__ = ['GetUserRoutes', 'GetUserSearchDomains', 'user_may_vpn']
 
+def user_may_vpn(userid):
+    '''
+        Check if a user is allowed to VPN in or not
+    '''
+    iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+    return iam_searcher.user_allowed_to_vpn(userid)
 
 class GetUserRoutes(object):
     """

@@ -85,6 +85,9 @@ def main_work(argv):
     if not client_version_allowed(config_object, client_version_string):
         return False
 
+    if not userid_allowed(config_object, usercn):
+        return False
+
     output_array = build_lines(
         config_object=config_object,
         username_is=usercn,

@@ -25,6 +25,14 @@ class TestMainScript(unittest.TestCase):
             if varname in os.environ:
                 del os.environ[varname]
 
+    def test_userid_allowed(self):
+        ''' Verify userid_allowed does what we expect '''
+        with mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector:
+            instance = mock_connector.return_value
+            with mock.patch.object(instance, 'userid_allowed') as mock_ua:
+                self.script.userid_allowed(instance, 'someone')
+        mock_ua.assert_called_once_with('someone')
+
     def test_client_version_allowed(self):
         ''' Verify client_version_allowed does what we expect '''
         with mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector:
@@ -102,13 +110,25 @@ class TestMainScript(unittest.TestCase):
             result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'When versions are too low, main_work must be False')
 
+    def test_23_unauthorized_user(self):
+        ''' Bad user / user disallowed. '''
+        os.environ['common_name'] = 'bob-device'
+        os.environ['username'] = 'bobby.tables'
+        os.environ['trusted_ip'] = '10.20.30.40'
+        os.environ['IV_VER'] = '2.4.6'
+        with mock.patch.object(self.script, 'build_lines'), \
+                mock.patch.object(self.script, 'userid_allowed', return_value=False):
+            result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
+        self.assertFalse(result, 'When user is disallowed, main_work must fail')
+
     def test_23_cant_write(self):
         ''' Run but be unable to write a file. '''
         os.environ['common_name'] = 'bob-device'
         os.environ['username'] = 'bobby.tables'
         os.environ['trusted_ip'] = '10.20.30.40'
         os.environ['IV_VER'] = '2.4.6'
-        with mock.patch.object(self.script, 'build_lines'):
+        with mock.patch.object(self.script, 'build_lines'), \
+                mock.patch.object(self.script, 'userid_allowed', return_value=True):
             with mock.patch('six.moves.builtins.open', side_effect=IOError):
                 result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'When unable to write an output file, main_work must fail')
@@ -121,7 +141,8 @@ class TestMainScript(unittest.TestCase):
         os.environ['IV_VER'] = '2.4.6'
         with mock.patch.object(self.script, 'build_lines') as mock_buildlines, \
                 mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector, \
-                mock.patch.object(self.script, 'client_version_allowed', return_value=True):
+                mock.patch.object(self.script, 'client_version_allowed', return_value=True), \
+                mock.patch.object(self.script, 'userid_allowed', return_value=True):
             mock_cc = mock_connector.return_value
             with mock.patch('six.moves.builtins.open', create=True,
                             return_value=mock.MagicMock(spec=StringIO())) as mock_open:

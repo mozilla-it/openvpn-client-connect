@@ -7,6 +7,7 @@ import netaddr
 import six
 from six.moves import configparser
 import openvpn_client_connect.client_connect
+import openvpn_client_connect.per_user_configs
 
 
 class TestClass(unittest.TestCase):
@@ -255,6 +256,13 @@ class TestClass(unittest.TestCase):
         self.assertTrue(library.client_version_allowed('2.3.10'))
         self.assertTrue(library.client_version_allowed('2.4.10'))
         library.min_version = _orig
+
+    def test_userid_allowed(self):
+        """ Verify that userid_allowed calls outward """
+        for obj in self.configs['all']:
+            with mock.patch.object(openvpn_client_connect.per_user_configs, 'user_may_vpn') as mock_usermay:
+                obj.userid_allowed('someguy')
+            mock_usermay.assert_called_once_with('someguy')
 
     def test_get_dns(self):
         """ Verify that get_dns_server_lines returns good lines """

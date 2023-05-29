@@ -8,6 +8,7 @@ import ast
 import re
 import netaddr
 from six.moves import configparser
+import openvpn_client_connect.per_user_configs
 from openvpn_client_connect.per_user_configs \
     import GetUserRoutes, GetUserSearchDomains
 sys.dont_write_bytecode = True
@@ -196,6 +197,14 @@ class ClientConnect(object):
             # Our min_version is greater than your client version.  Sorry.
             return False
         return True
+
+    @staticmethod
+    def userid_allowed(userid):
+        """
+            Check if a user is allowed to VPN.
+            This is a somewhat-early authorization check.
+        """
+        return openvpn_client_connect.per_user_configs.user_may_vpn(userid)
 
     def get_dns_server_lines(self):
         """

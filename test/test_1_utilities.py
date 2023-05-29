@@ -1,7 +1,6 @@
 """ Test suite for the openvpn_client_connect non-class methods """
 import unittest
 import test.context  # pylint: disable=unused-import
-import six
 from openvpn_client_connect.client_connect import versioncompare
 
 
