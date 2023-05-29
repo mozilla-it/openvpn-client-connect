@@ -42,8 +42,7 @@ class TestMainScript(unittest.TestCase):
                     mock.patch.object(instance, 'get_dynamic_route_lines') as mock_lines_dynroute, \
                     mock.patch.object(instance, 'get_static_route_lines') as mock_lines_statroute, \
                     mock.patch.object(instance, 'get_protocol_lines') as mock_lines_proto:
-                self.script.build_lines(instance, 'username_is', 'username_as',
-                                        'client_ip', '2.x')
+                self.script.build_lines(instance, 'username_is', 'username_as', 'client_ip')
         mock_lines_dns.assert_called_once_with()
         mock_lines_search.assert_called_once_with(username_is='username_is',
                                                   username_as='username_as')
@@ -130,8 +129,7 @@ class TestMainScript(unittest.TestCase):
         mock_buildlines.assert_called_once_with(config_object=mock_cc,
                                                 username_is='bob-device',
                                                 username_as='bobby.tables',
-                                                client_ip='10.20.30.40',
-                                                client_version='2.4.6')
+                                                client_ip='10.20.30.40')
         file_handle = mock_open.return_value.__enter__.return_value
         file_handle.write.assert_called_once()
         self.assertTrue(result, 'With all environmental variables, main_work must work')

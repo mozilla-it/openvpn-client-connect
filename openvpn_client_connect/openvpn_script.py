@@ -15,7 +15,16 @@ def client_version_allowed(config_object, client_version):
     """
     return config_object.client_version_allowed(client_version)
 
-def build_lines(config_object, username_is, username_as, client_ip, client_version):
+def userid_allowed(config_object, userid):
+    """
+        Check if the user is allowed to connect.
+        With the use of auth-gen-token a connection may happen that
+        does not go through auth-user-pass-verify, which means we need
+        to do an authorization check that we formerly didn't need to do.
+    """
+    return config_object.userid_allowed(userid)
+
+def build_lines(config_object, username_is, username_as, client_ip):
     """
         Create the contents of the lines that should be returned
         to the connecting client.
@@ -81,7 +90,6 @@ def main_work(argv):
         username_is=usercn,
         username_as=unsafe_username,
         client_ip=trusted_ip,
-        client_version=client_version_string
     )
     output_lines = '\n'.join(output_array) + '\n'
 
