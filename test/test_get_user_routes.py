@@ -4,7 +4,7 @@ import os.path
 import test.context  # pylint: disable=unused-import
 import mock
 from netaddr import IPNetwork
-from six.moves import configparser
+import configparser
 import iamvpnlibrary
 from openvpn_client_connect import per_user_configs
 

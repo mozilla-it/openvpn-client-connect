@@ -6,8 +6,8 @@ import os
 import sys
 import ast
 import re
+import configparser
 import netaddr
-from six.moves import configparser
 import openvpn_client_connect.per_user_configs
 from openvpn_client_connect.per_user_configs \
     import GetUserRoutes, GetUserSearchDomains

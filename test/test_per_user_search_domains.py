@@ -2,8 +2,7 @@
 import unittest
 import os.path
 import test.context  # pylint: disable=unused-import
-import six
-from six.moves import configparser
+import configparser
 import iamvpnlibrary
 from openvpn_client_connect import per_user_configs
 
@@ -31,7 +30,7 @@ class PublicTestsMixin(object):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -103,7 +102,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -118,7 +117,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -137,7 +136,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, ['example.com', 'example.org', 'example1.example.com'],
@@ -155,7 +154,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, ['example.com', 'example.org', 'example1.example.com'],
@@ -173,7 +172,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, ['example.com', 'example.org',
@@ -193,7 +192,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, ['example.com', 'example.org'],
@@ -212,7 +211,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, ['example.com', 'example.org'],
@@ -231,7 +230,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -251,7 +250,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -271,7 +270,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(res, self.library.search_domains,
@@ -353,7 +352,7 @@ class TestSearchDomainsUser(unittest.TestCase):
         self.assertIsInstance(bad, list, ('The bad_user should get a list '
                                           'of dns search domains'))
         for item in bad:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertEqual(bad, self.library.search_domains, ('bad users should have '
@@ -364,7 +363,7 @@ class TestSearchDomainsUser(unittest.TestCase):
         self.assertIsInstance(good, list, ('The normal_user should get a list '
                                            'of dns search domains'))
         for item in good:
-            self.assertIsInstance(item, six.string_types,
+            self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
                                    'nonstring: "{}"').format(item))
         self.assertLess(len(bad), len(good), ('good users should get more search '

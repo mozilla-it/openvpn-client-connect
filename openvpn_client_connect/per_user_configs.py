@@ -22,15 +22,10 @@
 import os
 import sys
 import ast
-import six
-from six.moves import configparser
+import configparser
 from netaddr import IPNetwork, cidr_merge, cidr_exclude
 import iamvpnlibrary
 sys.dont_write_bytecode = True
-#try:
-#    import configparser
-#except ImportError:  # pragma: no cover
-#    from six.moves import configparser
 
 __all__ = ['GetUserRoutes', 'GetUserSearchDomains', 'user_may_vpn']
 
@@ -168,7 +163,7 @@ class GetUserRoutes(object):
                 user_office_routes = []
             else:
                 user_office_routes = self.config['COMPREHENSIVE_OFFICE_ROUTES']
-        elif isinstance(from_office, six.string_types):
+        elif isinstance(from_office, str):
             if from_office in self.config['PER_OFFICE_ROUTES']:
                 user_office_routes = self.route_exclusion(
                     self.config['COMPREHENSIVE_OFFICE_ROUTES'],
@@ -330,7 +325,7 @@ class GetUserSearchDomains(object):
                 if not isinstance(value, list):
                     value = [value]
                 for candidate_domain in value:
-                    if not isinstance(candidate_domain, six.string_types):
+                    if not isinstance(candidate_domain, str):
                         continue
                     if not candidate_domain:
                         # In case someone left a blank string:

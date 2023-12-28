@@ -1,14 +1,11 @@
 """ Test suite for the openvpn_client_connect class """
 import unittest
 import sys
+from io import StringIO
 import test.context  # pylint: disable=unused-import
 from netaddr import IPNetwork
 import mock
 import openvpn_client_connect.vpn_user_routes
-if sys.version_info.major >= 3:
-    from io import StringIO  # pragma: no cover
-else:
-    from io import BytesIO as StringIO  # pragma: no cover
 
 
 class TestMainScript(unittest.TestCase):

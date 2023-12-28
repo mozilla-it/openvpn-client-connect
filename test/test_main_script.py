@@ -2,13 +2,10 @@
 import unittest
 import os
 import sys
+from io import StringIO
 import test.context  # pylint: disable=unused-import
 import mock
 import openvpn_client_connect.openvpn_script
-if sys.version_info.major >= 3:
-    from io import StringIO  # pragma: no cover
-else:
-    from io import BytesIO as StringIO  # pragma: no cover
 
 
 class TestMainScript(unittest.TestCase):
@@ -129,7 +126,7 @@ class TestMainScript(unittest.TestCase):
         os.environ['IV_VER'] = '2.4.6'
         with mock.patch.object(self.script, 'build_lines'), \
                 mock.patch.object(self.script, 'userid_allowed', return_value=True):
-            with mock.patch('six.moves.builtins.open', side_effect=IOError):
+            with mock.patch('builtins.open', side_effect=IOError):
                 result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'When unable to write an output file, main_work must fail')
 
@@ -144,7 +141,7 @@ class TestMainScript(unittest.TestCase):
                 mock.patch.object(self.script, 'client_version_allowed', return_value=True), \
                 mock.patch.object(self.script, 'userid_allowed', return_value=True):
             mock_cc = mock_connector.return_value
-            with mock.patch('six.moves.builtins.open', create=True,
+            with mock.patch('builtins.open', create=True,
                             return_value=mock.MagicMock(spec=StringIO())) as mock_open:
                 result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         mock_buildlines.assert_called_once_with(config_object=mock_cc,

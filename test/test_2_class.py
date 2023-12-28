@@ -4,8 +4,7 @@ import os
 import test.context  # pylint: disable=unused-import
 import mock
 import netaddr
-import six
-from six.moves import configparser
+import configparser
 import openvpn_client_connect.client_connect
 import openvpn_client_connect.per_user_configs
 
@@ -110,12 +109,12 @@ class TestClass(unittest.TestCase):
             self.assertIsNone(obj.min_version,
                               'min_version should be None on an empty config')
         for obj in self.configs['udps']:
-            self.assertIsInstance(obj.proto, six.string_types,
+            self.assertIsInstance(obj.proto, str,
                                   'proto must be a string')
             self.assertEqual(obj.proto, 'udp',
                              'proto must be udp')
         for obj in self.configs['tcps']:
-            self.assertIsInstance(obj.proto, six.string_types,
+            self.assertIsInstance(obj.proto, str,
                                   'proto must be a string')
             self.assertEqual(obj.proto, 'tcp',
                              'proto must be tcp')
@@ -150,7 +149,7 @@ class TestClass(unittest.TestCase):
             #self.assertGreater(len(obj.search_domains), 0,
             #    'search_domains must be a non-empty list')
             for addr in obj.search_domains:
-                self.assertIsInstance(addr, six.string_types,
+                self.assertIsInstance(addr, str,
                                       'search_domains must contain strings')
 
     def test_init_04_officeipmapping(self):
@@ -169,7 +168,7 @@ class TestClass(unittest.TestCase):
                                ('office_ip_mapping should not be '
                                 'empty on a dynamic test'))
             for _key, val in obj.office_ip_mapping.items():
-                self.assertIsInstance(val, (list, six.string_types),
+                self.assertIsInstance(val, (list, str),
                                       ('office_ip_mapping values '
                                        'must be lists or strings'))
 
@@ -196,13 +195,13 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(obj.routes), 0,
                                ('static routes should not be '
                                 'empty on a static test'))
-            self.assertIsInstance(obj.routes[0], six.string_types,
+            self.assertIsInstance(obj.routes[0], str,
                                   'static routes should be strings')
 
     def test_init_06_minversion(self):
         """ Verify that min_version is set. """
         for obj in self.configs['min_version']:
-            self.assertIsInstance(obj.min_version, six.string_types,
+            self.assertIsInstance(obj.min_version, str,
                                   'min_version should be a string')
 
     def test_cliversion(self):
@@ -277,11 +276,11 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(obj.get_dns_server_lines()), 0,
                                'get_dns_server_lines must be a populated list')
             for line in obj.get_dns_server_lines():
-                self.assertIsInstance(line, six.string_types,
+                self.assertIsInstance(line, str,
                                       ('get_dns_server_lines values '
                                        'should be strings'))
-                six.assertRegex(self, line, 'push "dhcp-option DNS .*"',
-                                'must push a dhcp-option for DNS')
+                self.assertRegex(line, 'push "dhcp-option DNS .*"',
+                                 'must push a dhcp-option for DNS')
 
     def test_get_domains(self):
         """ Verify that get_search_domains_lines returns good lines """
@@ -305,11 +304,11 @@ class TestClass(unittest.TestCase):
             #self.assertGreater(len(obj.get_search_domains_lines()), 0,
             #    'get_search_domains_lines must be a populated list')
             for line in obj.get_search_domains_lines():
-                self.assertIsInstance(line, six.string_types,
+                self.assertIsInstance(line, str,
                                       ('get_search_domains_lines values '
                                        'should be strings'))
-                six.assertRegex(self, line, 'push "dhcp-option DOMAIN .*"',
-                                'must push a dhcp-option for DOMAIN')
+                self.assertRegex(line, 'push "dhcp-option DOMAIN .*"',
+                                 'must push a dhcp-option for DOMAIN')
             with mock.patch('iamvpnlibrary.IAMVPNLibrary', side_effect=RuntimeError):
                 self.assertEqual(obj.get_search_domains_lines(), [],
                                  ('get_search_domains_lines must be '
@@ -333,11 +332,11 @@ class TestClass(unittest.TestCase):
                                ('get_static_route_lines must be '
                                 'a populated list'))
             for line in obj.get_static_route_lines():
-                self.assertIsInstance(line, six.string_types,
+                self.assertIsInstance(line, str,
                                       ('get_static_route_lines values '
                                        'should be strings'))
-                six.assertRegex(self, line, 'push "route .*"',
-                                'must push a route')
+                self.assertRegex(line, 'push "route .*"',
+                                 'must push a route')
 
     def test_get_dynamicroutelines(self):
         """ Verify that get_dynamic_route_lines returns good lines """
@@ -385,10 +384,10 @@ class TestClass(unittest.TestCase):
             self.assertGreater(len(result), 0,
                                'get_dynamic_route_lines must be a populated list')
             for line in result:
-                self.assertIsInstance(line, six.string_types,
+                self.assertIsInstance(line, str,
                                       'get_dynamic_route_lines values should be strings')
-                six.assertRegex(self, line, 'push "route .*"',
-                                'must push a route')
+                self.assertRegex(line, 'push "route .*"',
+                                 'must push a route')
             with mock.patch('iamvpnlibrary.IAMVPNLibrary', side_effect=RuntimeError):
                 result = obj.get_dynamic_route_lines(username_is=normal_user,
                                                      client_ip=self.test_office_ip)
@@ -412,7 +411,7 @@ class TestClass(unittest.TestCase):
             self.assertEqual(len(obj.get_protocol_lines()), 1,
                              'get_protocol_lines must exist on udp config')
             for line in obj.get_protocol_lines():
-                self.assertIsInstance(line, six.string_types,
+                self.assertIsInstance(line, str,
                                       ('get_protocol_lines values must be strings'))
-                six.assertRegex(self, line, 'push "explicit-exit-notify .*"',
-                                'must push an exit-notify')
+                self.assertRegex(line, 'push "explicit-exit-notify .*"',
+                                 'must push an exit-notify')
