@@ -53,8 +53,7 @@ class GetUserRoutes:
         try:
             _freeroutes = ast.literal_eval(
                 _config.get('dynamic-mapping', 'FREE_ROUTES'))
-        except:  # pylint: disable=bare-except
-            # This bare-except is due to 2.7 limitations in configparser.
+        except (configparser.NoOptionError, configparser.NoSectionError):
             _freeroutes = []
         if not isinstance(_freeroutes, list):  # pragma: no cover
             _freeroutes = []
@@ -63,8 +62,7 @@ class GetUserRoutes:
             _officeroutes = ast.literal_eval(
                 _config.get('dynamic-mapping',
                             'COMPREHENSIVE_OFFICE_ROUTES'))
-        except:  # pylint: disable=bare-except
-            # This bare-except is due to 2.7 limitations in configparser.
+        except (configparser.NoOptionError, configparser.NoSectionError):
             _officeroutes = []
         if not isinstance(_officeroutes, list):  # pragma: no cover
             _officeroutes = []
@@ -72,8 +70,7 @@ class GetUserRoutes:
         try:
             _perofficeroutes = ast.literal_eval(
                 _config.get('dynamic-mapping', 'PER_OFFICE_ROUTES'))
-        except:  # pylint: disable=bare-except
-            # This bare-except is due to 2.7 limitations in configparser.
+        except (configparser.NoOptionError, configparser.NoSectionError):
             _perofficeroutes = {}
         if not isinstance(_perofficeroutes, dict):  # pragma: no cover
             _perofficeroutes = {}
@@ -266,8 +263,7 @@ class GetUserSearchDomains:
         try:
             _search_domains = ast.literal_eval(
                 _config.get('client-connect', 'GLOBAL_SEARCH_DOMAINS'))
-        except:  # pylint: disable=bare-except
-            # This bare-except is due to 2.7 limitations in configparser.
+        except (configparser.NoOptionError, configparser.NoSectionError):
             _search_domains = []
         if not isinstance(_search_domains, list):  # pragma: no cover
             _search_domains = []
@@ -276,8 +272,7 @@ class GetUserSearchDomains:
         try:
             _dynamic_dict = ast.literal_eval(
                 _config.get('dynamic-dns-search', 'dns_search_domain_map'))
-        except:  # pylint: disable=bare-except
-            # This bare-except is due to 2.7 limitations in configparser.
+        except (configparser.NoOptionError, configparser.NoSectionError):
             _dynamic_dict = {}
         if not isinstance(_dynamic_dict, dict):  # pragma: no cover
             _dynamic_dict = {}

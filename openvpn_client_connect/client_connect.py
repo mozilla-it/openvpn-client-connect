@@ -89,8 +89,7 @@ class ClientConnect:
             try:
                 self.dns_servers = ast.literal_eval(
                     _config.get('client-connect', 'GLOBAL_DNS_SERVERS'))
-            except:  # pylint: disable=bare-except
-                # This bare-except is due to 2.7 limitations in configparser.
+            except (configparser.NoOptionError, configparser.NoSectionError):
                 pass
             if not isinstance(self.dns_servers, list):
                 self.dns_servers = []
@@ -98,8 +97,7 @@ class ClientConnect:
             try:
                 self.search_domains = ast.literal_eval(
                     _config.get('client-connect', 'GLOBAL_SEARCH_DOMAINS'))
-            except:  # pylint: disable=bare-except
-                # This bare-except is due to 2.7 limitations in configparser.
+            except (configparser.NoOptionError, configparser.NoSectionError):
                 pass
             if not isinstance(self.search_domains, list):
                 self.search_domains = []
@@ -109,8 +107,7 @@ class ClientConnect:
             try:
                 self.office_ip_mapping = ast.literal_eval(
                     _config.get('dynamic-mapping', 'OFFICE_IP_MAPPING'))
-            except:  # pylint: disable=bare-except
-                # This bare-except is due to 2.7 limitations in configparser.
+            except (configparser.NoOptionError, configparser.NoSectionError):
                 pass
             if not isinstance(self.office_ip_mapping, dict):
                 self.office_ip_mapping = {}
@@ -120,8 +117,7 @@ class ClientConnect:
             try:
                 self.routes = ast.literal_eval(
                     _config.get('static-mapping', 'ROUTES'))
-            except:  # pylint: disable=bare-except
-                # This bare-except is due to 2.7 limitations in configparser.
+            except (configparser.NoOptionError, configparser.NoSectionError):
                 pass
             if not isinstance(self.routes, list):
                 self.routes = []
