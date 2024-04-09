@@ -18,6 +18,7 @@ class TestClass(unittest.TestCase):
         ccmod = openvpn_client_connect.client_connect
         noconf = ccmod.ClientConnect('test_configs/nosuchfile.conf')
         empty = ccmod.ClientConnect('test_configs/empty.conf')
+        superempty = ccmod.ClientConnect('test_configs/superempty.conf')
         # wrongvals is an awful file that ends up falling back to defaults.
         # Thus, while it looks like it's dynamic and static, it's wrong enough
         # to be falling back to failsafes, and thus it's only minimally tested,
@@ -31,6 +32,7 @@ class TestClass(unittest.TestCase):
         singlenat = ccmod.ClientConnect('test_configs/singlenat.conf')
         multinat = ccmod.ClientConnect('test_configs/multinat.conf')
         min_version = ccmod.ClientConnect('test_configs/min_version.conf')
+        min_version_dict = ccmod.ClientConnect('test_configs/min_version_dict.conf')
         self.configs = {
             'dynamics': [udp_dyn, tcp_dyn,
                          doubleup,
@@ -41,7 +43,7 @@ class TestClass(unittest.TestCase):
             'udps': [udp_dyn, udp_stat, doubleup, wrongvals, min_version],
             'tcps': [tcp_dyn, tcp_stat],
             'invalid': [noconf, empty],
-            'min_version': [min_version],
+            'min_version': [superempty, min_version, min_version_dict],
             'valid': [udp_dyn, tcp_dyn,
                       udp_stat, tcp_stat,
                       doubleup,
@@ -201,8 +203,8 @@ class TestClass(unittest.TestCase):
     def test_init_06_minversion(self):
         """ Verify that min_version is set. """
         for obj in self.configs['min_version']:
-            self.assertIsInstance(obj.min_version, str,
-                                  'min_version should be a string')
+            self.assertIsInstance(obj.min_version, (str, dict, type(None)),
+                                  'min_version must be a string or dict')
 
     def test_cliversion(self):
         """ Verify that client_version_allowed does the right things. """
@@ -210,50 +212,80 @@ class TestClass(unittest.TestCase):
         # library ourselves for this test:
         library = self.configs['min_version'][0]
         _orig = library.min_version
-        library.min_version = None
-        self.assertTrue(library.client_version_allowed(''))
-        self.assertTrue(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.6'))
-        library.min_version = '2.2'
-        self.assertTrue(library.client_version_allowed(''))
-        self.assertTrue(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.6'))
-        library.min_version = '2.3'
-        self.assertFalse(library.client_version_allowed(''))
-        self.assertTrue(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.6'))
-        library.min_version = '2.4'
-        self.assertFalse(library.client_version_allowed(''))
-        self.assertFalse(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.6'))
-        library.min_version = '2.4.4'
-        self.assertFalse(library.client_version_allowed(''))
-        self.assertFalse(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.10'))
-        # Someone experimented with rolling their own
-        self.assertFalse(library.client_version_allowed('2.4_beta1'))
-        self.assertTrue(library.client_version_allowed('2.5_beta3'))
-        # ics-openvpn.blinkt.de follows master:
-        self.assertFalse(library.client_version_allowed('2.3_master'))
-        self.assertTrue(library.client_version_allowed('2.4_master'))
-        self.assertTrue(library.client_version_allowed('2.5_master'))
+        for minver in (None, {}):
+            library.min_version = minver
+            self.assertTrue(library.client_version_allowed(''))
+            self.assertTrue(library.client_version_allowed('2.3.10'))
+            self.assertTrue(library.client_version_allowed('2.4.6'))
+        for minver in ('2.2', {'2': '2.2'}):
+            library.min_version = minver
+            self.assertTrue(library.client_version_allowed(''))
+            self.assertTrue(library.client_version_allowed('2.3.10'))
+            self.assertTrue(library.client_version_allowed('2.4.6'))
+        for minver in ('2.3', {'2': '2.3'}):
+            library.min_version = minver
+            self.assertFalse(library.client_version_allowed(''))
+            self.assertTrue(library.client_version_allowed('2.3.10'))
+            self.assertTrue(library.client_version_allowed('2.4.6'))
+        for minver in ('2.4', {'2': '2.4'}):
+            library.min_version = minver
+            self.assertFalse(library.client_version_allowed(''))
+            self.assertFalse(library.client_version_allowed('2.3.10'))
+            self.assertTrue(library.client_version_allowed('2.4.6'))
+        for minver in ('2.4.4', {'2': '2.4.4'}):
+            library.min_version = minver
+            self.assertFalse(library.client_version_allowed(''))
+            self.assertFalse(library.client_version_allowed('2.3.10'))
+            self.assertTrue(library.client_version_allowed('2.4.10'))
+            # Someone experimented with rolling their own
+            self.assertFalse(library.client_version_allowed('2.4_beta1'))
+            self.assertTrue(library.client_version_allowed('2.5_beta3'))
+            # ics-openvpn.blinkt.de follows master:
+            self.assertFalse(library.client_version_allowed('2.3_master'))
+            self.assertTrue(library.client_version_allowed('2.4_master'))
+            self.assertTrue(library.client_version_allowed('2.5_master'))
+            # Deny something unparseable-but-close
+            self.assertFalse(library.client_version_allowed('2.5_m@ster'))
+
         # Debian started _git in 2022
-        self.assertTrue(library.client_version_allowed('2.6_git'))
-        # Some android thing also pins:
+        # Debian shipped _rc2 in 2023 as part of bookworm/12 and bullseye backports.
+        for minver in ('2.5', {'2': '2.5'}):
+            library.min_version = minver
+            self.assertTrue(library.client_version_allowed('2.6_rc2'))
+            self.assertTrue(library.client_version_allowed('2.6_git'))
+        for minver in ('2.6', {'2': '2.6'}):
+            library.min_version = minver
+            self.assertTrue(library.client_version_allowed('2.6_rc2'))
+            self.assertTrue(library.client_version_allowed('2.6_git'))
+        for minver in ('2.6.1', {'2': '2.6.1'}):
+            library.min_version = minver
+            self.assertFalse(library.client_version_allowed('2.6_rc2'))
+            self.assertTrue(library.client_version_allowed('2.6_git'))
+
+        # This test suite will be a little funky.
+        # 3 is greater than 2, so allow it...
+        library.min_version = '2.4.4'
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
-        # Deny something unparseable-but-close
-        self.assertFalse(library.client_version_allowed('2.5_m@ster'))
+        # 3 is explicitly missing, don't allow it...
+        library.min_version = {'2': '2.4.4'}
+        self.assertFalse(library.client_version_allowed('3.git::58b92569'))
+        self.assertFalse(library.client_version_allowed('3.git::728733ae:Release'))
+        # 3 is included, allow it.
+        library.min_version = {'3': '3.8'}
+        self.assertTrue(library.client_version_allowed('3.git::58b92569'))
+        self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
 
-        library.min_version = '2.5'
-        # Debian shipped _rc2 in 2023 as part of bookworm/12 and bullseye backports.
-        self.assertTrue(library.client_version_allowed('2.6_rc2'))
-
-        # Make sure garbage on the server fails open:
+        # Make sure garbage strings on the server fails open:
         library.min_version = 'urfburf'
         self.assertTrue(library.client_version_allowed(''))
         self.assertTrue(library.client_version_allowed('2.3.10'))
         self.assertTrue(library.client_version_allowed('2.4.10'))
+        # Make sure garbage dicts on the server fail closed:
+        library.min_version = {'q': 'urfburf'}
+        self.assertFalse(library.client_version_allowed(''))
+        self.assertFalse(library.client_version_allowed('2.3.10'))
+        self.assertFalse(library.client_version_allowed('2.4.10'))
         library.min_version = _orig
 
     def test_userid_allowed(self):
