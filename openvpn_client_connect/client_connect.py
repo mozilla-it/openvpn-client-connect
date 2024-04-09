@@ -60,7 +60,7 @@ def versioncompare(arg1, arg2):
     return 0
 
 
-class ClientConnect(object):
+class ClientConnect:
     """
         This is mainly implemented as a class because it's an easier way to
         keep track of our config-file based configuration.  For the most part
@@ -139,7 +139,7 @@ class ClientConnect(object):
                 try:
                     config.read(filename)
                     break
-                except (configparser.Error):
+                except configparser.Error:
                     pass
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.

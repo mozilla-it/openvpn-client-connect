@@ -36,7 +36,7 @@ def user_may_vpn(userid):
     iam_searcher = iamvpnlibrary.IAMVPNLibrary()
     return iam_searcher.user_allowed_to_vpn(userid)
 
-class GetUserRoutes(object):
+class GetUserRoutes:
     """
         This is mainly implemented as a class because it's an easier way to
         keep track of our config-file based configuration.  For the most part
@@ -106,7 +106,7 @@ class GetUserRoutes(object):
                 try:
                     config.read(filename)
                     break
-                except (configparser.Error):
+                except configparser.Error:
                     pass
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.
@@ -249,7 +249,7 @@ class GetUserRoutes(object):
         return all_routes
 
 
-class GetUserSearchDomains(object):
+class GetUserSearchDomains:
     """
         This is mainly implemented as a class because it's an easier way to
         keep track of our config-file based configuration.  For the most part
@@ -301,7 +301,7 @@ class GetUserSearchDomains(object):
                 try:
                     config.read(filename)
                     break
-                except (configparser.Error):
+                except configparser.Error:
                     pass
         # Note that there's no 'else' here.  You could have no config file.
         # The init will assume default values where there's no config.
