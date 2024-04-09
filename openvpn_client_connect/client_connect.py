@@ -194,9 +194,18 @@ class ClientConnect:
                 return self.client_version_allowed(fake_version)
             gitcolon_match = re.match(r'^(\d+)\.git::', client_version)
             if gitcolon_match:
-                # _master is going to be considered the latest version in a family.
+                # git is going to be considered the latest version in a family.
                 fake_version = '{}.999999'.format(gitcolon_match.group(1))
                 return self.client_version_allowed(fake_version)
+            connect_match = re.match(r'^(\d+\.\d+(?:\.\d+)?)connect\d+$', client_version)
+                # OpenVPN Connect is a family of apps (usually for mobile) which has
+                # a completely different numbering scheme.  OpenVPN Connect is based on
+                # openvpn3, so if you do a version comparison here on the 2 family of
+                # the server, that's naive and going to be "yeah, 3 is bigger than 2".
+                # You want to do some minimum-versioning on the 3 family, by making
+                # minimum-version be set in your config file.
+            if connect_match:
+                return self.client_version_allowed(connect_match.group(1))
             # At this point, we have a weird client version we've never seen
             # and haven't defined a way to handle.  Gotta say no.
             return False

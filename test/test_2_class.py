@@ -262,14 +262,17 @@ class TestClass(unittest.TestCase):
         library.min_version = '2.4.4'
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
+        self.assertTrue(library.client_version_allowed('3.8.3connect1'))
         # 3 is explicitly missing, don't allow it...
         library.min_version = {'2': '2.4.4'}
         self.assertFalse(library.client_version_allowed('3.git::58b92569'))
         self.assertFalse(library.client_version_allowed('3.git::728733ae:Release'))
+        self.assertFalse(library.client_version_allowed('3.8.3connect1'))
         # 3 is included, allow it.
         library.min_version = {'3': '3.8'}
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
+        self.assertTrue(library.client_version_allowed('3.8.3connect1'))
 
         # Make sure garbage values on the server fail closed:
         for minver in ('urfburf', {'q': 'urfburf'}):
