@@ -6,7 +6,7 @@ import configparser
 import iamvpnlibrary
 from openvpn_client_connect import per_user_configs
 
-class PublicTestsMixin(object):
+class PublicTestsMixin():
     """
         This class is used to run a basic litmus test on some
         mediocre setups.  The good checks are later in this file.

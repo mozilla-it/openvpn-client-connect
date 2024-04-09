@@ -1,7 +1,6 @@
 """ Test suite for the openvpn_client_connect class """
 import unittest
 import os
-import sys
 from io import StringIO
 import test.context  # pylint: disable=unused-import
 import mock
@@ -137,7 +136,8 @@ class TestMainScript(unittest.TestCase):
         os.environ['trusted_ip'] = '10.20.30.40'
         os.environ['IV_VER'] = '2.4.6'
         with mock.patch.object(self.script, 'build_lines') as mock_buildlines, \
-                mock.patch('openvpn_client_connect.client_connect.ClientConnect') as mock_connector, \
+                mock.patch('openvpn_client_connect.client_connect.ClientConnect') \
+                        as mock_connector, \
                 mock.patch.object(self.script, 'client_version_allowed', return_value=True), \
                 mock.patch.object(self.script, 'userid_allowed', return_value=True):
             mock_cc = mock_connector.return_value

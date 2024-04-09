@@ -2,9 +2,9 @@
 import unittest
 import os
 import test.context  # pylint: disable=unused-import
+import configparser
 import mock
 import netaddr
-import configparser
 import openvpn_client_connect.client_connect
 import openvpn_client_connect.per_user_configs
 
@@ -259,7 +259,8 @@ class TestClass(unittest.TestCase):
     def test_userid_allowed(self):
         """ Verify that userid_allowed calls outward """
         for obj in self.configs['all']:
-            with mock.patch.object(openvpn_client_connect.per_user_configs, 'user_may_vpn') as mock_usermay:
+            with mock.patch.object(openvpn_client_connect.per_user_configs,
+                                   'user_may_vpn') as mock_usermay:
                 obj.userid_allowed('someguy')
             mock_usermay.assert_called_once_with('someguy')
 

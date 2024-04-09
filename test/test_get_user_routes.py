@@ -2,14 +2,14 @@
 import unittest
 import os.path
 import test.context  # pylint: disable=unused-import
+import configparser
 import mock
 from netaddr import IPNetwork
-import configparser
 import iamvpnlibrary
 from openvpn_client_connect import per_user_configs
 
 
-class PublicTestsMixin(object):
+class PublicTestsMixin():
     """ Class of tests """
 
     def test_init(self):

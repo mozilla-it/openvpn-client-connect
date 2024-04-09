@@ -11,14 +11,18 @@ class TestUserMayVPN(unittest.TestCase):
 
     def test_user_may_not_vpn(self):
         """ Verify pipeline call """
-        with mock.patch.object(iamvpnlibrary.IAMVPNLibrary, 'user_allowed_to_vpn', return_value=False) as mock_library:
+        with mock.patch.object(iamvpnlibrary.IAMVPNLibrary,
+                               'user_allowed_to_vpn',
+                               return_value=False) as mock_library:
             res = per_user_configs.user_may_vpn('foo@example.com')
         mock_library.assert_called_once_with('foo@example.com')
         self.assertFalse(res)
 
     def test_user_may_vpn(self):
         """ Verify pipeline call """
-        with mock.patch.object(iamvpnlibrary.IAMVPNLibrary, 'user_allowed_to_vpn', return_value=True) as mock_library:
+        with mock.patch.object(iamvpnlibrary.IAMVPNLibrary,
+                               'user_allowed_to_vpn',
+                               return_value=True) as mock_library:
             res = per_user_configs.user_may_vpn('bar@example.com')
         mock_library.assert_called_once_with('bar@example.com')
         self.assertTrue(res)

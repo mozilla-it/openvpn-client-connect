@@ -1,6 +1,5 @@
 """ Test suite for the openvpn_client_connect class """
 import unittest
-import sys
 from io import StringIO
 import test.context  # pylint: disable=unused-import
 from netaddr import IPNetwork
