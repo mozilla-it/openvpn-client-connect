@@ -156,37 +156,14 @@ class ClientConnect:
         if not self.min_version:
             # We have no minimums, so any client is good.
             return True
-        if isinstance(self.min_version, str):
-            if re.match(r'^\d+\.\d+(?:\.\d+)?$', self.min_version) is None:
-                # Someone has put in a wacky minimum version.  There's no way we can
-                # know what to do here.  We're going to fail-open, because that's the
-                # less-impactful choice.
-                return True
-        elif isinstance(self.min_version, dict):
-            for _key, stringymatch in self.min_version.items():
-                if re.match(r'^\d+\.\d+(?:\.\d+)?$', stringymatch) is None:
-                    # Someone has put in a wacky minimum version on some option.
-                    # There's no way we can know what to do here.  We're going to
-                    # fail-closed, because that's safer and anyone using a dict
-                    # here should know better.
-                    return False
         family_match = re.match(r'^(\d+)', client_version)
         if family_match is None:
             # We have a server minimum version but no client version:
             # The client didn't tell us what version they are.  That's either
             # an error, or a pre-2.3 client. (2.3 is when IV_VER was added)
-            if (isinstance(self.min_version, str) and \
-                    versioncompare('2.3', self.min_version) == 1) or \
-                    (isinstance(self.min_version, dict) and \
-                    versioncompare('2.3', self.min_version.get('2', '2.3')) == 1):
-                # We shouldn't be here.  Don't set a minimum version below 2.3.
-                # But, for completeness sake, "it's indistinguishable" what
-                # a nonreporting client is, we just know they're below 2.3.
-                # So, if you are awful enough to get here, allow the client,
-                # because you surely have a reason for being this crazy.
-                return True
-            # otherwise, you have a 2.3 minimum and a client who we presume is
-            # sub 2.3.  This is a guess, but a very good one.
+            #
+            # We are going to assume that anyone who cares about doing version
+            # match/filtering cares enough to say "before-2.3 is too old."
             return False
         family_number = family_match.group(1)
         if isinstance(self.min_version, str):
@@ -196,6 +173,12 @@ class ClientConnect:
         if server_min_version is None:
             # The client version came in as 3 and you only had keys for 2, or something
             # like that.  As such, we fail you out.
+            return False
+        if re.match(r'^\d+\.\d+(?:\.\d+)?$', server_min_version) is None:
+            # Someone has put in a wacky minimum version on some option.
+            # There's no way we can know what to do here.  We're going to
+            # fail-closed, because that's safer and anyone using a dict
+            # here should know better.
             return False
         if re.match(r'^\d+\.\d+(?:\.\d+)?$', client_version) is None:
             # We have a poorly-formed client version.  This section is basically

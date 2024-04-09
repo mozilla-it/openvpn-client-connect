@@ -217,11 +217,6 @@ class TestClass(unittest.TestCase):
             self.assertTrue(library.client_version_allowed(''))
             self.assertTrue(library.client_version_allowed('2.3.10'))
             self.assertTrue(library.client_version_allowed('2.4.6'))
-        for minver in ('2.2', {'2': '2.2'}):
-            library.min_version = minver
-            self.assertTrue(library.client_version_allowed(''))
-            self.assertTrue(library.client_version_allowed('2.3.10'))
-            self.assertTrue(library.client_version_allowed('2.4.6'))
         for minver in ('2.3', {'2': '2.3'}):
             library.min_version = minver
             self.assertFalse(library.client_version_allowed(''))
@@ -276,16 +271,13 @@ class TestClass(unittest.TestCase):
         self.assertTrue(library.client_version_allowed('3.git::58b92569'))
         self.assertTrue(library.client_version_allowed('3.git::728733ae:Release'))
 
-        # Make sure garbage strings on the server fails open:
-        library.min_version = 'urfburf'
-        self.assertTrue(library.client_version_allowed(''))
-        self.assertTrue(library.client_version_allowed('2.3.10'))
-        self.assertTrue(library.client_version_allowed('2.4.10'))
-        # Make sure garbage dicts on the server fail closed:
-        library.min_version = {'q': 'urfburf'}
-        self.assertFalse(library.client_version_allowed(''))
-        self.assertFalse(library.client_version_allowed('2.3.10'))
-        self.assertFalse(library.client_version_allowed('2.4.10'))
+        # Make sure garbage values on the server fail closed:
+        for minver in ('urfburf', {'q': 'urfburf'}):
+            library.min_version = minver
+            self.assertFalse(library.client_version_allowed(''))
+            self.assertFalse(library.client_version_allowed('2.3.10'))
+            self.assertFalse(library.client_version_allowed('2.4.10'))
+
         library.min_version = _orig
 
     def test_userid_allowed(self):
