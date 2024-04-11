@@ -43,7 +43,8 @@ class TestClass(unittest.TestCase):
             'udps': [udp_dyn, udp_stat, doubleup, wrongvals, min_version],
             'tcps': [tcp_dyn, tcp_stat],
             'invalid': [noconf, empty],
-            'min_version': [superempty, min_version, min_version_dict],
+            'min_version': [min_version, min_version_dict],
+            'min_version_empty': [superempty],
             'valid': [udp_dyn, tcp_dyn,
                       udp_stat, tcp_stat,
                       doubleup,
@@ -202,9 +203,12 @@ class TestClass(unittest.TestCase):
 
     def test_init_06_minversion(self):
         """ Verify that min_version is set. """
+        for obj in self.configs['min_version_empty']:
+            self.assertIsInstance(obj.min_version, (str, type(None)),
+                                  'min_version must be None when absent')
         for obj in self.configs['min_version']:
-            self.assertIsInstance(obj.min_version, (str, dict, type(None)),
-                                  'min_version must be a string or dict')
+            self.assertIsInstance(obj.min_version, (str, dict),
+                                  'min_version must be a string or dict when present')
 
     def test_cliversion(self):
         """ Verify that client_version_allowed does the right things. """
