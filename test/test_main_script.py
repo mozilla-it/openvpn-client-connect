@@ -88,13 +88,22 @@ class TestMainScript(unittest.TestCase):
         self.assertIn('No common_name or username environment variable provided.',
                       fake_out.getvalue())
 
-    def test_23_incomplete_vars(self):
+    def test_23_incomplete_vars1(self):
         ''' With just one envvar provided, bomb out '''
         os.environ['common_name'] = 'bob-device'
         with mock.patch('sys.stdout', new=StringIO()) as fake_out:
             result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'With not-all environmental variables, main_work must fail')
         self.assertIn('No trusted_ip environment variable provided.', fake_out.getvalue())
+
+    def test_23_incomplete_vars2(self):
+        ''' With just one envvar provided, bomb out '''
+        os.environ['common_name'] = 'bob-device'
+        os.environ['trusted_ip'] = '10.20.30.40'
+        with mock.patch('sys.stdout', new=StringIO()) as fake_out:
+            result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
+        self.assertFalse(result, 'With not-all environmental variables, main_work must fail')
+        self.assertIn('No IV_VER environment variable provided.', fake_out.getvalue())
 
     def test_23_bad_version(self):
         ''' Run but have a minimum version failure. '''

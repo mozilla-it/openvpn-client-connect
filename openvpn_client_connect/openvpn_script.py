@@ -62,7 +62,7 @@ def main_work(argv):
     # 2.3+ clients send IV_VER.
     # A 2.3 server, if sent IV_VER, does not send it to the script.
     # 2.4 clients and servers are all well-behaved.
-    # Basically: "this can be blank"
+    # Basically: "this can be blank"... (but see later)
     client_version_string = os.environ.get('IV_VER')
 
     # common_name is an environmental variable passed in:
@@ -78,6 +78,10 @@ def main_work(argv):
         return False
     if not trusted_ip:
         print('No trusted_ip environment variable provided.')
+        return False
+    # We're now at the point where anything NOT sending IV_VER is too broken to tolerate.
+    if not client_version_string:
+        print('No IV_VER environment variable provided.')
         return False
 
     config_object = openvpn_client_connect.client_connect.ClientConnect(args.conffile)
