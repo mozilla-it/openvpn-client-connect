@@ -88,6 +88,12 @@ class ClientConnect:
                     _config.get('client-connect', 'minimum-version'))
             except configparser.NoOptionError:
                 pass
+            except SyntaxError:
+                # It's possible to have a 2.x.y string in a config file with no quotes.
+                # If that runs through eval, you'll explode because it looks like a broken
+                # float instead of a string.
+                # If that's the case, give another try:
+                self.min_version = _config.get('client-connect', 'minimum-version')
             if not isinstance(self.min_version, (str, dict)):
                 self.min_version = None
 

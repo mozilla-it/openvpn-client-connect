@@ -32,6 +32,7 @@ class TestClass(unittest.TestCase):
         singlenat = ccmod.ClientConnect('test_configs/singlenat.conf')
         multinat = ccmod.ClientConnect('test_configs/multinat.conf')
         min_version = ccmod.ClientConnect('test_configs/min_version.conf')
+        min_version_old = ccmod.ClientConnect('test_configs/min_version_old.conf')
         min_version_dict = ccmod.ClientConnect('test_configs/min_version_dict.conf')
         self.configs = {
             'dynamics': [udp_dyn, tcp_dyn,
@@ -43,7 +44,7 @@ class TestClass(unittest.TestCase):
             'udps': [udp_dyn, udp_stat, doubleup, wrongvals, min_version],
             'tcps': [tcp_dyn, tcp_stat],
             'invalid': [noconf, empty],
-            'min_version': [min_version, min_version_dict],
+            'min_version': [min_version, min_version_old, min_version_dict],
             'min_version_empty': [superempty],
             'valid': [udp_dyn, tcp_dyn,
                       udp_stat, tcp_stat,
