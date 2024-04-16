@@ -155,12 +155,7 @@ class GetUserRoutes:
             This should provide the routes that someone would have,
             based on if they're in/out of an office.
         """
-        if isinstance(from_office, bool):
-            if from_office:
-                user_office_routes = []
-            else:
-                user_office_routes = self.config['COMPREHENSIVE_OFFICE_ROUTES']
-        elif isinstance(from_office, str):
+        if isinstance(from_office, str):
             if from_office in self.config['PER_OFFICE_ROUTES']:
                 user_office_routes = self.route_exclusion(
                     self.config['COMPREHENSIVE_OFFICE_ROUTES'],

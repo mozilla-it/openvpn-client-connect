@@ -61,22 +61,6 @@ class PublicTestsMixin():
                          'Should have read a correct value.')
         os.remove(test_reading_file)
 
-    def test_get_office_routes_classic(self):
-        """
-            verify what kind of data we get for an office routes query
-            the contents of the data are hard to test.  Presently this
-            is 'either or' but this will change later.
-            The most simple test is "when you're in the office, you have
-            fewer hosts available than when you're remote"
-        """
-        ret1 = self.library.get_office_routes(True)
-        ret2 = self.library.get_office_routes(False)
-        if ret1 == [] and ret2 == []:
-            raise self.skipTest('Inconclusive test, no offices defined')
-        numhosts1 = sum([x.size for x in ret1])
-        numhosts2 = sum([x.size for x in ret2])
-        self.assertGreater(numhosts2, numhosts1)
-
     def test_get_office_routes(self):
         """
             verify what kind of data we get for an office routes query
@@ -179,43 +163,23 @@ class PublicTestsMixin():
         """
             This is failed-user test.
         """
+        # This is a quick check for "if you can't talk to IAM:
+        with mock.patch.object(self.library, 'iam_searcher', new=None):
+            self.assertEqual(self.library.build_user_routes('bob', 'site1'), [])
+            self.assertEqual(self.library.build_user_routes('bob', None), [])
+
+        # Now, with talking to IAM, maybe let's make sure we fail:
         if not self.users.has_section('testing'):  # pragma: no cover
             raise self.skipTest('No testing section defined')
         if not self.users.has_option('testing', 'bad_user'):  # pragma: no cover
             raise self.skipTest('No testing/bad_user defined')
         bad_user = self.users.get('testing', 'bad_user')
-        ret = self.library.build_user_routes(bad_user, True)
+        ret = self.library.build_user_routes(bad_user, 'site1')
+        # 'site1' exists as a part of the test_configs for getuserRoutes
         self.assertEqual(ret, [])
-        ret = self.library.build_user_routes(bad_user, False)
+        ret = self.library.build_user_routes(bad_user, None)
         self.assertEqual(ret, [])
 
-    def test_build_user_routes_classic(self):
-        """
-            This is pretty much the "get me someone's routes" test.
-            Since we're livetesting against a human, who could change their
-            available routes, we can't do an awesome check.  But we can
-            look for structure.
-        """
-        with mock.patch.object(self.library, 'iam_searcher', new=None):
-            self.assertEqual(self.library.build_user_routes('bob', True), [])
-        if not self.users.has_section('testing'):  # pragma: no cover
-            raise self.skipTest('No testing section defined')
-        if not self.users.has_option('testing', 'normal_user'):  # pragma: no cover
-            raise self.skipTest('No testing/normal_user defined')
-        normal_user = self.users.get('testing', 'normal_user')
-        ret = self.library.build_user_routes(normal_user, True)
-        self.assertIsInstance(ret, list)
-        self.assertIsInstance(ret[0], IPNetwork)
-        self.assertGreaterEqual(len(ret),
-                                len(self.library.config['FREE_ROUTES']))
-        ret = self.library.build_user_routes(normal_user, False)
-        self.assertIsInstance(ret, list)
-        self.assertIsInstance(ret[0], IPNetwork)
-        _allofficeroutes = self.library.config['COMPREHENSIVE_OFFICE_ROUTES']
-        _overlap_routes = (set(ret) &
-                           set(_allofficeroutes))
-        self.assertEqual(sorted(_overlap_routes),
-                         sorted(_allofficeroutes))
 
     def test_build_user_routes(self):
         """

@@ -29,17 +29,6 @@ class TestMainScript(unittest.TestCase):
             self.script.main_work([])
         self.assertEqual(exiting.exception.code, 2)
 
-    def test_30_main_genericoffice(self):
-        ''' test with --office '''
-        retval = [IPNetwork('1.1.1.1/22')]  # Note the deliberate weird CIDR
-        with mock.patch.object(self.script, 'GetUserRoutes') as gur, \
-                mock.patch('sys.stdout', new=StringIO()) as fake_out:
-            instance = gur.return_value
-            instance.build_user_routes.return_value = retval
-            self.script.main_work(['script', '--office', '--conf', 'path1', 'user1'])
-        instance.build_user_routes.assert_called_once_with('user1', True)
-        self.assertEqual('1.1.0.0 255.255.252.0\n', fake_out.getvalue())
-
     def test_31_main_officeid(self):
         ''' test with --office-id '''
         retval = [IPNetwork('2.2.2.130/16')]  # Note the deliberate weird CIDR

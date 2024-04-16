@@ -38,17 +38,9 @@ def main_work(argv):
         Handle argument parsing, build a route list, and print it.
     """
     parser = ArgumentParser(description='Args to control the CRL checking')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--office', action="store_true", required=False,
-                       help='Someone is connecting from an unspecified office',
-                       dest='from_office_flag', default=False)
-    group.add_argument('--office-id', type=str, required=False,
-                       help='Office that someone is connecting from',
-                       dest='office_id', default=None)
-    # DELETEME: Use this v instead of the exclusive group ^ , eventually
-    # parser.add_argument('--office-id', type=str, required=False,
-    #                     help='Office that someone is connecting from',
-    #                     dest='office_id', default=None)
+    parser.add_argument('--office-id', type=str, required=False,
+                        help='Office that someone is connecting from',
+                        dest='office_id', default=None)
     parser.add_argument('--conf', type=str, required=True,
                         help='Config file',
                         dest='conffile', default=None)
@@ -60,9 +52,6 @@ def main_work(argv):
     if args.office_id:
         user_routes = gur.build_user_routes(args.username,
                                             args.office_id)
-    elif args.from_office_flag:
-        user_routes = gur.build_user_routes(args.username,
-                                            args.from_office_flag)
     else:
         user_routes = gur.build_user_routes(args.username, None)
 
