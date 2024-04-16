@@ -296,7 +296,8 @@ class ClientConnect:
             if gur.iam_searcher:
                 effective_username = gur.iam_searcher.verify_sudo_user(username_is, username_as)
                 user_routes = gur.build_user_routes(effective_username,
-                                                    user_at_office)
+                                                    user_at_office,
+                                                    client_ip)
             else:
                 user_routes = []
 

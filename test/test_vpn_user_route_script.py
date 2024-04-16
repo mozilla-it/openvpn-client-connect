@@ -29,7 +29,7 @@ class TestMainScript(unittest.TestCase):
             self.script.main_work([])
         self.assertEqual(exiting.exception.code, 2)
 
-    def test_31_main_officeid(self):
+    def test_30_main_officeid(self):
         ''' test with --office-id '''
         retval = [IPNetwork('2.2.2.130/16')]  # Note the deliberate weird CIDR
         with mock.patch.object(self.script, 'GetUserRoutes') as gur, \
@@ -37,7 +37,20 @@ class TestMainScript(unittest.TestCase):
             instance = gur.return_value
             instance.build_user_routes.return_value = retval
             self.script.main_work(['script', '--office-id', 'lhr1', '--conf', 'path2', 'user2'])
-        instance.build_user_routes.assert_called_once_with('user2', 'lhr1')
+        instance.build_user_routes.assert_called_once_with('user2', 'lhr1', None)
+        self.assertEqual('2.2.0.0 255.255.0.0\n', fake_out.getvalue())
+
+    def test_31_main_officeid_with_IP(self):
+        ''' test with --office-id and an IP '''
+        retval = [IPNetwork('2.2.2.130/16')]  # Note the deliberate weird CIDR
+        with mock.patch.object(self.script, 'GetUserRoutes') as gur, \
+                mock.patch('sys.stdout', new=StringIO()) as fake_out:
+            instance = gur.return_value
+            instance.build_user_routes.return_value = retval
+            self.script.main_work(['script', '--office-id', 'lhr1',
+                                   '--trusted-ip', '11.11.11.11',
+                                   '--conf', 'path2', 'user2'])
+        instance.build_user_routes.assert_called_once_with('user2', 'lhr1', '11.11.11.11')
         self.assertEqual('2.2.0.0 255.255.0.0\n', fake_out.getvalue())
 
     def test_32_main_remote(self):
@@ -48,5 +61,5 @@ class TestMainScript(unittest.TestCase):
             instance = gur.return_value
             instance.build_user_routes.return_value = retval
             self.script.main_work(['script', '--conf', 'path3', 'user3'])
-        instance.build_user_routes.assert_called_once_with('user3', None)
+        instance.build_user_routes.assert_called_once_with('user3', None, None)
         self.assertEqual('3.3.3.0 255.255.255.0\n', fake_out.getvalue())

@@ -69,9 +69,9 @@ class PublicTestsMixin():
             The most simple test is "when you're in the office, you have
             fewer hosts available than when you're remote"
         """
-        ret1 = self.library.get_office_routes('site1')
+        ret1 = self.library.get_office_routes('site1', None)
         # 'site1' exists as a part of the test_configs for getuserRoutes
-        ret2 = self.library.get_office_routes(None)
+        ret2 = self.library.get_office_routes(None, None)
         if ret1 == [] and ret2 == []:
             raise self.skipTest('Inconclusive test, no offices defined')
         numhosts1 = sum([x.size for x in ret1])
@@ -165,8 +165,8 @@ class PublicTestsMixin():
         """
         # This is a quick check for "if you can't talk to IAM:
         with mock.patch.object(self.library, 'iam_searcher', new=None):
-            self.assertEqual(self.library.build_user_routes('bob', 'site1'), [])
-            self.assertEqual(self.library.build_user_routes('bob', None), [])
+            self.assertEqual(self.library.build_user_routes('bob', 'site1', None), [])
+            self.assertEqual(self.library.build_user_routes('bob', None, None), [])
 
         # Now, with talking to IAM, maybe let's make sure we fail:
         if not self.users.has_section('testing'):  # pragma: no cover
@@ -174,10 +174,10 @@ class PublicTestsMixin():
         if not self.users.has_option('testing', 'bad_user'):  # pragma: no cover
             raise self.skipTest('No testing/bad_user defined')
         bad_user = self.users.get('testing', 'bad_user')
-        ret = self.library.build_user_routes(bad_user, 'site1')
+        ret = self.library.build_user_routes(bad_user, 'site1', None)
         # 'site1' exists as a part of the test_configs for getuserRoutes
         self.assertEqual(ret, [])
-        ret = self.library.build_user_routes(bad_user, None)
+        ret = self.library.build_user_routes(bad_user, None, None)
         self.assertEqual(ret, [])
 
 
@@ -195,14 +195,15 @@ class PublicTestsMixin():
         normal_user = self.users.get('testing', 'normal_user')
         # If they're in the office, they should have more routes above the
         # minimum provided by 'free'
-        ret = self.library.build_user_routes(normal_user, 'site1')
+        ret = self.library.build_user_routes(normal_user, 'site1', None)
         # 'site1' exists as a part of the test_configs for getuserRoutes
         self.assertIsInstance(ret, list)
         self.assertIsInstance(ret[0], IPNetwork)
         self.assertGreaterEqual(len(ret),
                                 len(self.library.config['FREE_ROUTES']))
+
         # If they're out of the office, they should have the office route.
-        ret = self.library.build_user_routes(normal_user, None)
+        ret = self.library.build_user_routes(normal_user, None, None)
         self.assertIsInstance(ret, list)
         self.assertIsInstance(ret[0], IPNetwork)
         _allofficeroutes = self.library.config['COMPREHENSIVE_OFFICE_ROUTES']
@@ -210,6 +211,35 @@ class PublicTestsMixin():
                            set(_allofficeroutes))
         self.assertEqual(sorted(_overlap_routes),
                          sorted(_allofficeroutes))
+
+        # If they're 'out of the office' by being on Guest, but 'in the office'
+        # by overlapping IPs, make sure they don't have a route to the VPN server.
+        #
+        # This is a mixin so we may have cases where we're testing against bad configs.
+        # There's no point in testing here if there's no "office routes" for us to exempt out of.
+        _allofficeroutes = self.library.config['COMPREHENSIVE_OFFICE_ROUTES']
+        if _allofficeroutes:
+            fake_server_ip = '10.238.72.1'
+            fake_client_ip = '10.238.12.13'
+            # Quick, test the test:
+            for item in _allofficeroutes:
+                if IPNetwork(fake_server_ip) in item:
+                    break
+            else:  # pragma: no cover
+                self.fail(f'{fake_server_ip} not in {_allofficeroutes}')
+            for item in _allofficeroutes:
+                if IPNetwork(fake_client_ip) in item:
+                    break
+            else:  # pragma: no cover
+                self.fail(f'{fake_client_ip} not in {_allofficeroutes}')
+            # ^ These IPs should contained within the range
+            # defined in test_configs/get_user_routes.conf
+            os.environ['ifconfig_local'] = fake_server_ip
+            ret = self.library.build_user_routes(normal_user, None, fake_client_ip)
+            self.assertIsInstance(ret, list)
+            self.assertIsInstance(ret[0], IPNetwork)
+            for item in ret:
+                self.assertNotIn(IPNetwork(fake_server_ip), item)
 
 
 class TestGetUserRoutesGood(PublicTestsMixin, unittest.TestCase):

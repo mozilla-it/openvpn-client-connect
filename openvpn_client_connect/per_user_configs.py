@@ -150,7 +150,7 @@ class GetUserRoutes:
             myroutes = newroutelist
         return sorted(list(set(myroutes)))
 
-    def get_office_routes(self, from_office):
+    def get_office_routes(self, from_office, client_ip):
         """
             This should provide the routes that someone would have,
             based on if they're in/out of an office.
@@ -166,9 +166,33 @@ class GetUserRoutes:
         else:
             # I don't know how we got here, but let's assume remote.
             user_office_routes = self.config['COMPREHENSIVE_OFFICE_ROUTES']
+
+        # This section is a razor-sharp edge case.
+        if client_ip is not None:
+            # ^ client_ip should always be here at runtime; None mostly represents
+            # the case of testing and don't-care's.
+            client_ipnetwork_obj = IPNetwork(client_ip)
+            for item in user_office_routes:
+                if client_ipnetwork_obj in item:
+                    client_ip_in_office = True
+                    break
+            else:
+                client_ip_in_office = False
+            if client_ip_in_office:
+                # This clause effectively means that "from_office" was falsey (we want to push
+                # an office route because you said you're not in the office) BUT the IP was
+                # within the office route, meaning that if we DO push you the office route,
+                # we have said "the best route to the office is via a route across the VPN".
+                # THAT will cause a routing failure.
+                server_ip = os.environ.get('ifconfig_local')
+                if server_ip is not None:
+                    server_ipnetwork_obj = IPNetwork(server_ip)
+                    user_office_routes = self.route_exclusion(
+                            user_office_routes,
+                            server_ipnetwork_obj)
         return user_office_routes
 
-    def build_user_routes(self, user_string, from_office):
+    def build_user_routes(self, user_string, from_office, client_ip):
         """
             This is the main function of the class, and builds out the
             routes we want to have available for a user, situationally
@@ -224,7 +248,7 @@ class GetUserRoutes:
         user_nonoffice_routes = sorted(
             cidr_merge(self.config['FREE_ROUTES'] + user_specific_routes))
         # ... plus your office routes, as calculated ...
-        user_office_routes = self.get_office_routes(from_office)
+        user_office_routes = self.get_office_routes(from_office, client_ip)
         # ... equals ...
         all_routes = sorted(user_nonoffice_routes + user_office_routes)
         # Notice here, we do NOT cidr_merge at this final point.

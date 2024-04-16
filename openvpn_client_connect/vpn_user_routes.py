@@ -41,6 +41,9 @@ def main_work(argv):
     parser.add_argument('--office-id', type=str, required=False,
                         help='Office that someone is connecting from',
                         dest='office_id', default=None)
+    parser.add_argument('--trusted-ip', type=str, required=False,
+                        help='IP of connecting client',
+                        dest='client_ip', default=None)
     parser.add_argument('--conf', type=str, required=True,
                         help='Config file',
                         dest='conffile', default=None)
@@ -49,11 +52,7 @@ def main_work(argv):
     args = parser.parse_args(argv[1:])
 
     gur = GetUserRoutes(args.conffile)
-    if args.office_id:
-        user_routes = gur.build_user_routes(args.username,
-                                            args.office_id)
-    else:
-        user_routes = gur.build_user_routes(args.username, None)
+    user_routes = gur.build_user_routes(args.username, args.office_id, args.client_ip)
 
     # Finally, we need to output all the routes in a nice list of
     #    NETWORK SPACE NETMASK
