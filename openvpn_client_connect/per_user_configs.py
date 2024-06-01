@@ -33,7 +33,11 @@ def user_may_vpn(userid):
     '''
         Check if a user is allowed to VPN in or not
     '''
-    iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+    try:
+        iam_searcher = iamvpnlibrary.IAMVPNLibrary()
+    except RuntimeError:
+        # Couldn't connect to the IAM service:
+        return False
     return iam_searcher.user_allowed_to_vpn(userid)
 
 class GetUserRoutes:
@@ -188,8 +192,8 @@ class GetUserRoutes:
                 if server_ip is not None:
                     server_ipnetwork_obj = IPNetwork(server_ip)
                     user_office_routes = self.route_exclusion(
-                            user_office_routes,
-                            server_ipnetwork_obj)
+                        user_office_routes,
+                        server_ipnetwork_obj)
         return user_office_routes
 
     def build_user_routes(self, user_string, from_office, client_ip):
