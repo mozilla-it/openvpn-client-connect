@@ -101,7 +101,7 @@ def main_work(argv):
     output_lines = '\n'.join(output_array) + '\n'
 
     try:
-        with open(args.output_filename, 'w') as filehandle:
+        with open(args.output_filename, 'w', encoding='utf-8') as filehandle:
             filehandle.write(output_lines)
     except IOError:
         # I couldn't write to the file, so we can't tell openvpn what

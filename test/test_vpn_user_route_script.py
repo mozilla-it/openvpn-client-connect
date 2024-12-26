@@ -40,7 +40,7 @@ class TestMainScript(unittest.TestCase):
         instance.build_user_routes.assert_called_once_with('user2', 'lhr1', None)
         self.assertEqual('2.2.0.0 255.255.0.0\n', fake_out.getvalue())
 
-    def test_31_main_officeid_with_IP(self):
+    def test_31_main_officeid_with_ip(self):
         ''' test with --office-id and an IP '''
         retval = [IPNetwork('2.2.2.130/16')]  # Note the deliberate weird CIDR
         with mock.patch.object(self.script, 'GetUserRoutes') as gur, \

@@ -32,7 +32,7 @@ class PublicTestsMixin():
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -44,7 +44,7 @@ class TestSearchDomainsGood(PublicTestsMixin, unittest.TestCase):
         """ Preparing test rig """
         _conffile = 'test_configs/testing_search_domains.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
-            self.fail('{} must exist to test GetUserSearchDomains'.format(_conffile))
+            self.fail(f'{_conffile} must exist to test GetUserSearchDomains')
         self.library = per_user_configs.GetUserSearchDomains(_conffile)
 
 
@@ -54,7 +54,7 @@ class TestSearchDomainsBad(PublicTestsMixin, unittest.TestCase):
         """ Preparing test rig """
         _conffile = 'test_configs/empty.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
-            self.fail('{} must exist to test GetUserSearchDomains'.format(_conffile))
+            self.fail(f'{_conffile} must exist to test GetUserSearchDomains')
         self.library = per_user_configs.GetUserSearchDomains(_conffile)
 
 
@@ -104,7 +104,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -119,7 +119,7 @@ class TestSearchDomainsContents(unittest.TestCase):
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -130,15 +130,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_string_1'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, ['example.com', 'example.org', 'example1.example.com'],
                          'matching groups must inherit a string value')
 
@@ -148,15 +148,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_list_1'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, ['example.com', 'example.org', 'example1.example.com'],
                          'matching groups must inherit from a list')
 
@@ -166,15 +166,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_list_2'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, ['example.com', 'example.org',
                                'example1.example.com', 'example2.example.net'],
                          'matching groups must inherit multiples from a list')
@@ -186,15 +186,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_dup_1'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, ['example.com', 'example.org'],
                          'matching groups must not create duplicates')
 
@@ -205,15 +205,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_dup_2'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, ['example.com', 'example.org'],
                          'matching groups must not create duplicates')
 
@@ -224,15 +224,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_emptystring'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -244,15 +244,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_emptylist'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -264,15 +264,15 @@ class TestSearchDomainsContents(unittest.TestCase):
         """
         testgroup = 'vpn_example_number'
         self.assertIn(testgroup, self.library.dynamic_dict,
-                      ('"{}" must be in dynamic_dict for this '
-                       'test to work'.format(testgroup)))
+                      (f'"{testgroup}" must be in dynamic_dict for this '
+                       'test to work'))
         res = self.library.build_search_domains(['something', testgroup])
         self.assertIsInstance(res, list,
                               'build_search_domains must return a list')
         for item in res:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(res, self.library.search_domains,
                          ('build_search_domains must return the defaults '
                           'when we have uninteresting inputs'))
@@ -319,7 +319,7 @@ class TestSearchDomainsUser(unittest.TestCase):
     def test_06_ingest_config_from_file(self):
         """ With an actual config file, get a populated ConfigParser """
         test_reading_file = '/tmp/test-reader.txt'  # nosec hardcoded_tmp_directory
-        with open(test_reading_file, 'w') as filepointer:
+        with open(test_reading_file, 'w', encoding='utf-8') as filepointer:
             filepointer.write('[aa]\nbb = cc\n')
         filepointer.close()
         result = self.library._ingest_config_from_file([test_reading_file])
@@ -355,7 +355,7 @@ class TestSearchDomainsUser(unittest.TestCase):
         for item in bad:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertEqual(bad, self.library.search_domains, ('bad users should have '
                                                             'only the default dns '
                                                             'search domains'))
@@ -366,6 +366,6 @@ class TestSearchDomainsUser(unittest.TestCase):
         for item in good:
             self.assertIsInstance(item, str,
                                   ('item in dns search domain list was '
-                                   'nonstring: "{}"').format(item))
+                                   f'nonstring: "{item}"'))
         self.assertLess(len(bad), len(good), ('good users should get more search '
                                               'domains than bad users'))

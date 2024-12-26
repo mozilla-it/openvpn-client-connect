@@ -59,8 +59,7 @@ def main_work(argv):
     # that bash will be able to iterate over
     for net_object in user_routes:
         # For one entry per line, remove the trailing comma
-        print("{network} {netmask}".format(network=net_object.network,
-                                           netmask=net_object.netmask))
+        print(f'{net_object.network} {net_object.netmask}')
 
 def main():
     """ Interface to the outside """

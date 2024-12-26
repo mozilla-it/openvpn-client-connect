@@ -172,6 +172,7 @@ class ClientConnect:
             # match/filtering cares enough to say "before-2.3 is too old."
             return False
         family_number = family_match.group(1)
+        server_min_version = None
         if isinstance(self.min_version, str):
             server_min_version = self.min_version
         elif isinstance(self.min_version, dict):
@@ -196,12 +197,14 @@ class ClientConnect:
             gitmaster_match = re.match(r'^(\d+\.\d+)_(?:master|git)$', client_version)
             if gitmaster_match:
                 # _master is going to be considered the latest version in a family.
-                fake_version = '{}.999999'.format(gitmaster_match.group(1))
+                version_before_master = gitmaster_match.group(1)
+                fake_version = f'{version_before_master}.999999'
                 return self.client_version_allowed(fake_version)
             gitcolon_match = re.match(r'^(\d+)\.git::', client_version)
             if gitcolon_match:
                 # git is going to be considered the latest version in a family.
-                fake_version = '{}.999999'.format(gitcolon_match.group(1))
+                version_before_colon = gitcolon_match.group(1)
+                fake_version = f'{version_before_colon}.999999'
                 return self.client_version_allowed(fake_version)
             connect_match = re.match(r'^(\d+\.\d+(?:\.\d+)?)connect\d+$', client_version)
                 # OpenVPN Connect is a family of apps (usually for mobile) which has
@@ -236,7 +239,7 @@ class ClientConnect:
         """
         return_lines = []
         for server in self.dns_servers:
-            _line = 'push "dhcp-option DNS {}"'.format(server)
+            _line = f'push "dhcp-option DNS {server}"'
             return_lines.append(_line)
         return return_lines
 
@@ -254,7 +257,7 @@ class ClientConnect:
             domains = []
         return_lines = []
         for server in domains:
-            _line = 'push "dhcp-option DOMAIN {}"'.format(server)
+            _line = f'push "dhcp-option DOMAIN {server}"'
             return_lines.append(_line)
         return return_lines
 
@@ -264,7 +267,7 @@ class ClientConnect:
         """
         return_lines = []
         for route_line in self.routes:
-            _line = 'push "route {}"'.format(route_line)
+            _line = f'push "route {route_line}"'
             return_lines.append(_line)
         return return_lines
 

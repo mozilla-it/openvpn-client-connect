@@ -48,7 +48,7 @@ class PublicTestsMixin():
     def test_06_ingest_config_from_file(self):
         """ With an actual config file, get a populated ConfigParser """
         test_reading_file = '/tmp/test-reader.txt'  # nosec hardcoded_tmp_directory
-        with open(test_reading_file, 'w') as filepointer:
+        with open(test_reading_file, 'w', encoding='utf-8') as filepointer:
             filepointer.write('[aa]\nbb = cc\n')
         filepointer.close()
         result = self.library._ingest_config_from_file([test_reading_file])
@@ -75,8 +75,8 @@ class PublicTestsMixin():
         ret2 = self.library.get_office_routes(None, None)
         if ret1 == [] and ret2 == []:
             raise self.skipTest('Inconclusive test, no offices defined')
-        numhosts1 = sum([x.size for x in ret1])
-        numhosts2 = sum([x.size for x in ret2])
+        numhosts1 = sum(x.size for x in ret1)
+        numhosts2 = sum(x.size for x in ret2)
         self.assertGreater(numhosts2, numhosts1)
 
     def test_route_subtraction(self):
@@ -250,7 +250,7 @@ class TestGetUserRoutesGood(PublicTestsMixin, unittest.TestCase):
         _usersfile = 'test_configs/testing_users.conf'
         _conffile = 'test_configs/get_user_routes.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
-            self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
+            self.fail(f'{_conffile} must exist to test GetUserRoutes')
         self.library = per_user_configs.GetUserRoutes(_conffile)
         self.users = self.library._ingest_config_from_file(_usersfile)
 
@@ -262,7 +262,7 @@ class TestGetUserRoutesBad(PublicTestsMixin, unittest.TestCase):
         _usersfile = 'test_configs/testing_users.conf'
         _conffile = 'test_configs/empty.conf'
         if not os.path.isfile(_conffile):  # pragma: no cover
-            self.fail('{} must exist to test GetUserRoutes'.format(_conffile))
+            self.fail(f'{_conffile} must exist to test GetUserRoutes')
         self.library = per_user_configs.GetUserRoutes(_conffile)
         self.users = self.library._ingest_config_from_file(_usersfile)
 

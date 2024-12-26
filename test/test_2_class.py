@@ -86,7 +86,7 @@ class TestClass(unittest.TestCase):
     def test_06_ingest_config_from_file(self):
         """ With an actual config file, get a populated ConfigParser """
         test_reading_file = '/tmp/test-reader.txt'  # nosec hardcoded_tmp_directory
-        with open(test_reading_file, 'w') as filepointer:
+        with open(test_reading_file, 'w', encoding='utf-8') as filepointer:
             filepointer.write('[aa]\nbb = cc\n')
         filepointer.close()
         for obj in self.configs['all']:
