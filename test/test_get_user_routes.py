@@ -32,7 +32,8 @@ class PublicTestsMixin():
 
     def test_04_ingest_no_config_file(self):
         """ With all missing config files, get an empty ConfigParser """
-        result = self.library._ingest_config_from_file(['/tmp/no-such-file.txt'])
+        _not_a_real_file = '/tmp/no-such-file.txt'  # nosec hardcoded_tmp_directory
+        result = self.library._ingest_config_from_file([_not_a_real_file])
         self.assertIsInstance(result, configparser.ConfigParser,
                               'Did not create a config object')
         self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
@@ -46,11 +47,11 @@ class PublicTestsMixin():
 
     def test_06_ingest_config_from_file(self):
         """ With an actual config file, get a populated ConfigParser """
-        test_reading_file = '/tmp/test-reader.txt'
+        test_reading_file = '/tmp/test-reader.txt'  # nosec hardcoded_tmp_directory
         with open(test_reading_file, 'w') as filepointer:
             filepointer.write('[aa]\nbb = cc\n')
         filepointer.close()
-        result = self.library._ingest_config_from_file(['/tmp/test-reader.txt'])
+        result = self.library._ingest_config_from_file([test_reading_file])
         self.assertIsInstance(result, configparser.ConfigParser,
                               'Did not create a config object')
         self.assertEqual(result.sections(), ['aa'],

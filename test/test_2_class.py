@@ -69,7 +69,8 @@ class TestClass(unittest.TestCase):
     def test_04_ingest_no_config_file(self):
         """ With all missing config files, get an empty ConfigParser """
         for obj in self.configs['all']:
-            result = obj._ingest_config_from_file(['/tmp/no-such-file.txt'])
+            _not_a_real_file = '/tmp/no-such-file.txt'  # nosec hardcoded_tmp_directory
+            result = obj._ingest_config_from_file([_not_a_real_file])
             self.assertIsInstance(result, configparser.ConfigParser,
                                   'Did not create a config object')
             self.assertEqual(result.sections(), [], 'Empty configs must have no parsed config')
@@ -84,12 +85,12 @@ class TestClass(unittest.TestCase):
 
     def test_06_ingest_config_from_file(self):
         """ With an actual config file, get a populated ConfigParser """
-        test_reading_file = '/tmp/test-reader.txt'
+        test_reading_file = '/tmp/test-reader.txt'  # nosec hardcoded_tmp_directory
         with open(test_reading_file, 'w') as filepointer:
             filepointer.write('[aa]\nbb = cc\n')
         filepointer.close()
         for obj in self.configs['all']:
-            result = obj._ingest_config_from_file(['/tmp/test-reader.txt'])
+            result = obj._ingest_config_from_file([test_reading_file])
             self.assertIsInstance(result, configparser.ConfigParser,
                                   'Did not create a config object')
             self.assertEqual(result.sections(), ['aa'],
