@@ -5,7 +5,7 @@ import subprocess
 from setuptools import setup
 
 NAME = 'openvpn-client-connect'
-VERSION = '1.4.3'
+VERSION = '1.5.0'
 
 
 def git_version():
