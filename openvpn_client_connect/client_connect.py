@@ -123,15 +123,30 @@ class ClientConnect:
             if not isinstance(self.office_ip_mapping, dict):
                 self.office_ip_mapping = {}
 
-        self.routes = []
+        self.routes_4 = []
         if _config.has_section('static-mapping'):
             try:
-                self.routes = ast.literal_eval(
-                    _config.get('static-mapping', 'ROUTES'))
+                try:
+                    self.routes_4 = ast.literal_eval(
+                        _config.get('static-mapping', 'ROUTES'))
+                except configparser.NoOptionError:
+                    pass
+                self.routes_4 = ast.literal_eval(
+                    _config.get('static-mapping', 'ROUTES_4'))
             except configparser.NoOptionError:
                 pass
-            if not isinstance(self.routes, list):
-                self.routes = []
+            if not isinstance(self.routes_4, list):
+                self.routes_4 = []
+
+        self.routes_6 = []
+        if _config.has_section('static-mapping'):
+            try:
+                self.routes_6 = ast.literal_eval(
+                    _config.get('static-mapping', 'ROUTES_6'))
+            except configparser.NoOptionError:
+                pass
+            if not isinstance(self.routes_6, list):
+                self.routes_6 = []
 
     @staticmethod
     def _ingest_config_from_file(conf_file):
@@ -266,8 +281,11 @@ class ClientConnect:
             Return the push lines for all static-defined routes.
         """
         return_lines = []
-        for route_line in self.routes:
+        for route_line in self.routes_4:
             _line = f'push "route {route_line}"'
+            return_lines.append(_line)
+        for route_line in self.routes_6:
+            _line = f'push "route-ipv6 {route_line}"'
             return_lines.append(_line)
         return return_lines
 

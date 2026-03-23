@@ -26,8 +26,10 @@ class TestClass(unittest.TestCase):
         wrongvals = ccmod.ClientConnect('test_configs/wrongvals.conf')
         udp_dyn = ccmod.ClientConnect('test_configs/udp_dynamic.conf')
         tcp_dyn = ccmod.ClientConnect('test_configs/tcp_dynamic.conf')
-        udp_stat = ccmod.ClientConnect('test_configs/udp_static.conf')
-        tcp_stat = ccmod.ClientConnect('test_configs/tcp_static.conf')
+        udp4_stat = ccmod.ClientConnect('test_configs/udp4_static.conf')
+        tcp4_stat = ccmod.ClientConnect('test_configs/tcp4_static.conf')
+        udp6_stat = ccmod.ClientConnect('test_configs/udp6_static.conf')
+        tcp6_stat = ccmod.ClientConnect('test_configs/tcp6_static.conf')
         doubleup = ccmod.ClientConnect('test_configs/doubleup.conf')
         singlenat = ccmod.ClientConnect('test_configs/singlenat.conf')
         multinat = ccmod.ClientConnect('test_configs/multinat.conf')
@@ -39,20 +41,21 @@ class TestClass(unittest.TestCase):
                          doubleup,
                          singlenat, multinat],
             'dynamiconly': [udp_dyn, tcp_dyn],
-            'statics': [udp_stat, tcp_stat, doubleup],
-            'staticonly': [udp_stat, tcp_stat],
-            'udps': [udp_dyn, udp_stat, doubleup, wrongvals, min_version],
-            'tcps': [tcp_dyn, tcp_stat],
+            'statics4': [udp4_stat, tcp4_stat, doubleup],
+            'statics6': [udp6_stat, tcp6_stat],
+            'staticonly': [udp4_stat, tcp4_stat, udp6_stat, tcp6_stat],
+            'udps': [udp_dyn, udp4_stat, doubleup, wrongvals, min_version],
+            'tcps': [tcp_dyn, tcp4_stat, tcp6_stat],
             'invalid': [noconf, empty],
             'min_version': [min_version, min_version_old, min_version_dict],
             'min_version_empty': [superempty],
             'valid': [udp_dyn, tcp_dyn,
-                      udp_stat, tcp_stat,
+                      udp4_stat, tcp4_stat,
                       doubleup,
                       singlenat, multinat],
             'all': [noconf, empty,
                     udp_dyn, tcp_dyn,
-                    udp_stat, tcp_stat,
+                    udp4_stat, tcp4_stat,
                     min_version,
                     doubleup, wrongvals],
             }
@@ -185,22 +188,35 @@ class TestClass(unittest.TestCase):
     def test_init_05_routes(self):
         """ Verify that init returns good routes """
         for obj in self.configs['all']:
-            self.assertIsInstance(obj.routes, list,
+            self.assertIsInstance(obj.routes_4, list,
+                                  'static routes must be a list')
+            self.assertIsInstance(obj.routes_6, list,
                                   'static routes must be a list')
 
         for obj in self.configs['invalid']:
-            self.assertEqual(len(obj.routes), 0,
+            self.assertEqual(len(obj.routes_4), 0,
+                             'static routes must be empty on null config')
+            self.assertEqual(len(obj.routes_6), 0,
                              'static routes must be empty on null config')
 
         for obj in self.configs['dynamiconly']:
-            self.assertEqual(len(obj.routes), 0,
+            self.assertEqual(len(obj.routes_4), 0,
+                             'static routes must be empty on a dynamic test')
+            self.assertEqual(len(obj.routes_6), 0,
                              'static routes must be empty on a dynamic test')
 
-        for obj in self.configs['statics']:
-            self.assertGreater(len(obj.routes), 0,
+        for obj in self.configs['statics4']:
+            self.assertGreater(len(obj.routes_4), 0,
                                ('static routes should not be '
                                 'empty on a static test'))
-            self.assertIsInstance(obj.routes[0], str,
+            self.assertIsInstance(obj.routes_4[0], str,
+                                  'static routes should be strings')
+
+        for obj in self.configs['statics6']:
+            self.assertGreater(len(obj.routes_6), 0,
+                               ('static routes should not be '
+                                'empty on a static test'))
+            self.assertIsInstance(obj.routes_6[0], str,
                                   'static routes should be strings')
 
     def test_init_06_minversion(self):
@@ -361,7 +377,7 @@ class TestClass(unittest.TestCase):
             self.assertEqual(len(obj.get_static_route_lines()), 0,
                              ('get_static_route_lines must be '
                               'empty on dynamic config'))
-        for obj in self.configs['statics']:
+        for obj in self.configs['statics4']:
             self.assertGreater(len(obj.get_static_route_lines()), 0,
                                ('get_static_route_lines must be '
                                 'a populated list'))
@@ -370,6 +386,16 @@ class TestClass(unittest.TestCase):
                                       ('get_static_route_lines values '
                                        'should be strings'))
                 self.assertRegex(line, 'push "route .*"',
+                                 'must push a route')
+        for obj in self.configs['statics6']:
+            self.assertGreater(len(obj.get_static_route_lines()), 0,
+                               ('get_static_route_lines must be '
+                                'a populated list'))
+            for line in obj.get_static_route_lines():
+                self.assertIsInstance(line, str,
+                                      ('get_static_route_lines values '
+                                       'should be strings'))
+                self.assertRegex(line, 'push "route-ipv6 .*"',
                                  'must push a route')
 
     def test_get_dynamicroutelines(self):
