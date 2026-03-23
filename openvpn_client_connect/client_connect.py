@@ -126,11 +126,6 @@ class ClientConnect:
         self.routes_4 = []
         if _config.has_section('static-mapping'):
             try:
-                try:
-                    self.routes_4 = ast.literal_eval(
-                        _config.get('static-mapping', 'ROUTES'))
-                except configparser.NoOptionError:
-                    pass
                 self.routes_4 = ast.literal_eval(
                     _config.get('static-mapping', 'ROUTES_4'))
             except configparser.NoOptionError:
