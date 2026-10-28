@@ -318,10 +318,16 @@ class ClientConnect:
                 user_routes = []
 
             for net_obj in user_routes:
+                if net_obj.network.version == 4:
+                    route_word = 'route'
+                    route_show = f'{net_obj.network} {net_obj.netmask}'
+                elif net_obj.network.version == 6:
+                    route_word = 'route-ipv6'
+                    route_show = f'{net_obj.network}/{net_obj.prefixlen}'
+                else:  # pragma: no cover
+                    raise ValueError(net_obj)
                 # For one entry per line, remove the trailing comma
-                _base = 'push "route {network} {netmask}"'
-                _line = _base.format(network=net_obj.network,
-                                     netmask=net_obj.netmask)
+                _line = f'push "{route_word} {route_show}"'
                 return_lines.append(_line)
         return return_lines
 

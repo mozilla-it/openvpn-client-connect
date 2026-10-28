@@ -446,7 +446,7 @@ class TestClass(unittest.TestCase):
             for line in result:
                 self.assertIsInstance(line, str,
                                       'get_dynamic_route_lines values should be strings')
-                self.assertRegex(line, 'push "route .*"',
+                self.assertRegex(line, 'push "route(?:-ipv6)? .*"',
                                  'must push a route')
             with mock.patch('iamvpnlibrary.IAMVPNLibrary', side_effect=RuntimeError):
                 result = obj.get_dynamic_route_lines(username_is=normal_user,

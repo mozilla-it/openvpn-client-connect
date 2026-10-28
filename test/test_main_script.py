@@ -16,7 +16,7 @@ class TestMainScript(unittest.TestCase):
 
     def tearDown(self):
         """ Clear the env so we don't impact other tests """
-        for varname in ['common_name', 'IV_VER', 'trusted_ip',
+        for varname in ['common_name', 'IV_VER', 'trusted_ip', 'trusted_ip6',
                         'something1', 'something2', 'username']:
             if varname in os.environ:
                 del os.environ[varname]
@@ -94,7 +94,7 @@ class TestMainScript(unittest.TestCase):
         with mock.patch('sys.stdout', new=StringIO()) as fake_out:
             result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'With not-all environmental variables, main_work must fail')
-        self.assertIn('No trusted_ip environment variable provided.', fake_out.getvalue())
+        self.assertIn('No trusted_ip or trusted_ip6 environment variable provided.', fake_out.getvalue())
 
     def test_23_incomplete_vars2(self):
         ''' With just one envvar provided, bomb out '''
@@ -104,6 +104,19 @@ class TestMainScript(unittest.TestCase):
             result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
         self.assertFalse(result, 'With not-all environmental variables, main_work must fail')
         self.assertIn('No IV_VER environment variable provided.', fake_out.getvalue())
+
+    def test_23_excessive_vars(self):
+        ''' Run but have a minimum version failure. '''
+        os.environ['common_name'] = 'bob-device'
+        os.environ['username'] = 'bobby.tables'
+        os.environ['trusted_ip'] = '10.20.30.40'
+        os.environ['trusted_ip6'] = '2001:db8:abcd::1000'
+        os.environ['IV_VER'] = '2.7.6'
+        with mock.patch('sys.stdout', new=StringIO()) as fake_out, \
+                mock.patch.object(self.script, 'client_version_allowed', return_value=True):
+            result = self.script.main_work(['script', '--conf', 'test/context.py', 'outfile'])
+        self.assertIn('trusted_ip and trusted_ip6 environment variable provided together.', fake_out.getvalue())
+        self.assertFalse(result, 'Cannot accept trusted_ip and trusted_ip6.')
 
     def test_23_bad_version(self):
         ''' Run but have a minimum version failure. '''

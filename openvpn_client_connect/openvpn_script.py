@@ -70,15 +70,20 @@ def main_work(argv):
     # https://openvpn.net/index.php/open-source/documentation/manuals/65-openvpn-20x-manpage.html
     usercn = os.environ.get('common_name')
     trusted_ip = os.environ.get('trusted_ip')
+    trusted_ip6 = os.environ.get('trusted_ip6')
     unsafe_username = os.environ.get('username')
 
     # Super failure in openvpn, or hacking, or an improper test from a human.
     if not usercn:
         print('No common_name or username environment variable provided.')
         return False
-    if not trusted_ip:
-        print('No trusted_ip environment variable provided.')
+    if trusted_ip and trusted_ip6:
+        print('trusted_ip and trusted_ip6 environment variable provided together.')
         return False
+    if not trusted_ip and not trusted_ip6:
+        print('No trusted_ip or trusted_ip6 environment variable provided.')
+        return False
+    trusted_ip_anyfamily = trusted_ip or trusted_ip6
     # We're now at the point where anything NOT sending IV_VER is too broken to tolerate.
     if not client_version_string:
         print('No IV_VER environment variable provided.')
@@ -96,7 +101,7 @@ def main_work(argv):
         config_object=config_object,
         username_is=usercn,
         username_as=unsafe_username,
-        client_ip=trusted_ip,
+        client_ip=trusted_ip_anyfamily,
     )
     output_lines = '\n'.join(output_array) + '\n'
 
